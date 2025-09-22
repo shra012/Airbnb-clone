@@ -1,5 +1,5 @@
 {
-  "name": "backedn",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Airbnb Lab backend (Express + Prisma)",
   "main": "src/server.js",
