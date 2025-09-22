@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = ["mysql", "postgresql"]
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  TRAVELER
+  OWNER
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  CANCELLED
+}
+
+model User {
+  id             Int               @id @default(autoincrement())
+  email          String            @unique
+  passwordHash   String            @map("password_hash")
+  name           String
+  role           UserRole
+  phone          String?
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  travelerProfile TravelerProfile?
+  ownerProfile    OwnerProfile?
+  properties      Property[]       @relation("OwnerProperties")
+  travelerBookings Booking[]       @relation("TravelerBookings")
+  favorites       Favorite[]
+}
+
+model TravelerProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique @map("user_id")
+  about       String?
+  city        String?
+  state       String?
+  country     String?
+  languages   String?
+  gender      String?
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model OwnerProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique @map("user_id")
+  about       String?
+  location    String?
+  phone       String?
+  avatarUrl   String?  @map("avatar_url")
+  company     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Property {
+  id            Int                 @id @default(autoincrement())
+  ownerId       Int                 @map("owner_id")
+  title         String
+  description   String
+  propertyType  String             @map("property_type")
+  addressLine1  String             @map("address_line_1")
+  addressLine2  String?            @map("address_line_2")
+  city          String
+  state         String
+  country       String
+  postalCode    String?            @map("postal_code")
+  latitude      Float?
+  longitude     Float?
+  pricePerNight Decimal            @map("price_per_night") @db.Decimal(10, 2)
+  cleaningFee   Decimal?           @map("cleaning_fee") @db.Decimal(10, 2)
+  bedrooms      Int
+  bathrooms     Int
+  maxGuests     Int                @map("max_guests")
+  checkInTime   String?            @map("check_in_time")
+  checkOutTime  String?            @map("check_out_time")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  owner         User               @relation("OwnerProperties", fields: [ownerId], references: [id])
+  amenities     PropertyAmenity[]
+  photos        PropertyPhoto[]
+  availabilities PropertyAvailability[]
+  bookings      Booking[]
+  favorites     Favorite[]
+}
+
+model PropertyAmenity {
+  id          Int      @id @default(autoincrement())
+  propertyId  Int      @map("property_id")
+  label       String
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model PropertyPhoto {
+  id          Int      @id @default(autoincrement())
+  propertyId  Int      @map("property_id")
+  url         String
+  caption     String?
+  isCover     Boolean  @default(false) @map("is_cover")
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model PropertyAvailability {
+  id          Int      @id @default(autoincrement())
+  propertyId  Int      @map("property_id")
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  isBlocked   Boolean  @default(false) @map("is_blocked")
+  reason      String?
+
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id           Int            @id @default(autoincrement())
+  travelerId   Int            @map("traveler_id")
+  propertyId   Int            @map("property_id")
+  status       BookingStatus  @default(PENDING)
+  startDate    DateTime       @map("start_date")
+  endDate      DateTime       @map("end_date")
+  guests       Int
+  totalPrice   Decimal?       @map("total_price") @db.Decimal(10, 2)
+  notes        String?
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  traveler     User           @relation("TravelerBookings", fields: [travelerId], references: [id])
+  property     Property       @relation(fields: [propertyId], references: [id])
+  itinerary    TravelItinerary?
+}
+
+model Favorite {
+  id          Int      @id @default(autoincrement())
+  travelerId  Int      @map("traveler_id")
+  propertyId  Int      @map("property_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  traveler    User     @relation(fields: [travelerId], references: [id])
+  property    Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([travelerId, propertyId])
+}
+
+model TravelItinerary {
+  id          Int      @id @default(autoincrement())
+  bookingId   Int      @unique @map("booking_id")
+  payload     Json
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model PointOfInterest {
+  id          Int      @id @default(autoincrement())
+  location    String
+  title       String
+  description String?
+  latitude    Float?
+  longitude   Float?
+  tags        String?
+}
+
+model LocalEvent {
+  id          Int      @id @default(autoincrement())
+  location    String
+  title       String
+  description String?
+  startDate   DateTime @map("start_date")
+  endDate     DateTime @map("end_date")
+  tags        String?
+  priceTier   String?  @map("price_tier")
+}
+
+model Restaurant {
+  id          Int      @id @default(autoincrement())
+  location    String
+  name        String
+  description String?
+  cuisine     String?
+  dietaryTags String?  @map("dietary_tags")
+  priceTier   String?  @map("price_tier")
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  phone       String?
+}
