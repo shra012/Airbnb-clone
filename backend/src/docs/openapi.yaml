@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Airbnb Lab Backend API
-  version: 0.2.0
+  version: 0.3.0
 servers:
   - url: http://localhost:4000/api
 components:
@@ -43,6 +43,413 @@ components:
           enum:
             - TRAVELER
             - OWNER
+    TravelerProfile:
+      type: object
+      properties:
+        about:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        languages:
+          type: string
+        gender:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TravelerDashboard:
+      type: object
+      required:
+        - profile
+        - summary
+        - upcomingBookings
+        - favoriteProperties
+      properties:
+        profile:
+          type: object
+          properties:
+            id:
+              type: integer
+            email:
+              type: string
+              format: email
+            name:
+              type: string
+            role:
+              type: string
+              enum:
+                - TRAVELER
+            travelerProfile:
+              $ref: '#/components/schemas/TravelerProfile'
+        summary:
+          type: object
+          required:
+            - pendingRequests
+            - upcomingTrips
+            - pastTrips
+            - favorites
+          properties:
+            pendingRequests:
+              type: integer
+            upcomingTrips:
+              type: integer
+            pastTrips:
+              type: integer
+            favorites:
+              type: integer
+        upcomingBookings:
+          type: array
+          items:
+            $ref: '#/components/schemas/TravelerBookingSummary'
+        favoriteProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/TravelerFavorite'
+    PropertySummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        pricePerNight:
+          type: number
+        cleaningFee:
+          type: number
+          nullable: true
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        maxGuests:
+          type: integer
+        coverPhoto:
+          nullable: true
+          type: object
+          properties:
+            id:
+              type: integer
+            url:
+              type: string
+              format: uri
+            caption:
+              type: string
+            isCover:
+              type: boolean
+    PropertyPhoto:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+          format: uri
+        caption:
+          type: string
+        isCover:
+          type: boolean
+    PropertyAvailability:
+      type: object
+      properties:
+        id:
+          type: integer
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        isBlocked:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+    PropertyOwner:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        ownerProfile:
+          type: object
+          properties:
+            location:
+              type: string
+            phone:
+              type: string
+            avatarUrl:
+              type: string
+              format: uri
+            company:
+              type: string
+    PropertyBlockedBooking:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        guests:
+          type: integer
+    PropertyDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        owner:
+          $ref: '#/components/schemas/PropertyOwner'
+        title:
+          type: string
+        description:
+          type: string
+        propertyType:
+          type: string
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+          nullable: true
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        postalCode:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          format: float
+          nullable: true
+        longitude:
+          type: number
+          format: float
+          nullable: true
+        pricePerNight:
+          type: number
+        cleaningFee:
+          type: number
+          nullable: true
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        maxGuests:
+          type: integer
+        checkInTime:
+          type: string
+          nullable: true
+        checkOutTime:
+          type: string
+          nullable: true
+        amenities:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              label:
+                type: string
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyPhoto'
+        availabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyAvailability'
+        blockedBookings:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyBlockedBooking'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TravelerBookingSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+          enum:
+            - PENDING
+            - ACCEPTED
+            - CANCELLED
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        guests:
+          type: integer
+        totalPrice:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        property:
+          $ref: '#/components/schemas/PropertySummary'
+    TravelerBookings:
+      type: object
+      required:
+        - bookings
+        - counts
+      properties:
+        bookings:
+          type: object
+          properties:
+            pending:
+              type: array
+              items:
+                $ref: '#/components/schemas/TravelerBookingSummary'
+            accepted:
+              type: array
+              items:
+                $ref: '#/components/schemas/TravelerBookingSummary'
+            cancelled:
+              type: array
+              items:
+                $ref: '#/components/schemas/TravelerBookingSummary'
+        counts:
+          type: object
+          properties:
+            pending:
+              type: integer
+            accepted:
+              type: integer
+            cancelled:
+              type: integer
+    BookingTraveler:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    BookingResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+          enum:
+            - PENDING
+            - ACCEPTED
+            - CANCELLED
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        guests:
+          type: integer
+        totalPrice:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        property:
+          $ref: '#/components/schemas/PropertySummary'
+        traveler:
+          $ref: '#/components/schemas/BookingTraveler'
+    TravelerFavorite:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        property:
+          $ref: '#/components/schemas/PropertySummary'
+    FavoriteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        property:
+          $ref: '#/components/schemas/PropertySummary'
+    OwnerSignupRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        about:
+          type: string
+        location:
+          type: string
+        phone:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+        company:
+          type: string
     TravelerSignupRequest:
       type: object
       required:
@@ -74,32 +481,6 @@ components:
         avatarUrl:
           type: string
           format: uri
-    OwnerSignupRequest:
-      type: object
-      required:
-        - name
-        - email
-        - password
-      properties:
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          minLength: 8
-        about:
-          type: string
-        location:
-          type: string
-        phone:
-          type: string
-        avatarUrl:
-          type: string
-          format: uri
-        company:
-          type: string
     LoginRequest:
       type: object
       required:
@@ -511,6 +892,83 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
+  /traveler/dashboard:
+    get:
+      tags:
+        - Traveler
+      summary: Get traveler dashboard data
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Dashboard response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TravelerDashboard'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /traveler/bookings:
+    get:
+      tags:
+        - Traveler
+      summary: List traveler bookings grouped by status
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Booking lists
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TravelerBookings'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /traveler/favorites:
+    get:
+      tags:
+        - Traveler
+      summary: List traveler favorite properties
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Favorite properties
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TravelerFavorite'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
   /owner/dashboard:
     get:
       tags:
@@ -609,6 +1067,381 @@ paths:
                         $ref: '#/components/schemas/OwnerProperty'
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /properties:
+    get:
+      tags:
+        - Properties
+      summary: Search available properties
+      parameters:
+        - in: query
+          name: location
+          schema:
+            type: string
+          description: Partial match against city, state, country, or address
+        - in: query
+          name: guests
+          schema:
+            type: integer
+            minimum: 1
+          description: Minimum number of guests the property must accommodate
+        - in: query
+          name: minPrice
+          schema:
+            type: number
+            minimum: 0
+        - in: query
+          name: maxPrice
+          schema:
+            type: number
+            minimum: 0
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [price-asc, price-desc, newest, updated]
+          description: Sort order (defaults to last updated)
+      responses:
+        '200':
+          description: Property search results
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PropertySummary'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /properties/{propertyId}:
+    get:
+      tags:
+        - Properties
+      summary: Fetch detailed information about a single property
+      parameters:
+        - in: path
+          name: propertyId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Property details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PropertyDetail'
+        '400':
+          description: Invalid property id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /favorites:
+    get:
+      tags:
+        - Favorites
+      summary: List traveler favorites
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Favorites list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FavoriteResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /favorites/{propertyId}:
+    post:
+      tags:
+        - Favorites
+      summary: Add a property to traveler favorites
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: propertyId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '201':
+          description: Property marked as favorite
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FavoriteResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - Favorites
+      summary: Remove a property from traveler favorites
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: propertyId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: Favorite removed
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Favorite not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /bookings:
+    post:
+      tags:
+        - Bookings
+      summary: Create a booking request
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - propertyId
+                - startDate
+                - endDate
+                - guests
+              properties:
+                propertyId:
+                  type: integer
+                  minimum: 1
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+                guests:
+                  type: integer
+                  minimum: 1
+                notes:
+                  type: string
+            example:
+              propertyId: 12
+              startDate: 2025-07-01
+              endDate: 2025-07-06
+              guests: 4
+              notes: Family vacation
+      responses:
+        '201':
+          description: Booking created in pending state
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BookingResponse'
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '409':
+          description: Conflicting booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    get:
+      tags:
+        - Bookings
+      summary: List bookings for the current user
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Bookings grouped by status
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        oneOf:
+                          - $ref: '#/components/schemas/TravelerBookings'
+                          - $ref: '#/components/schemas/OwnerBookings'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /bookings/{bookingId}/accept:
+    post:
+      tags:
+        - Bookings
+      summary: Accept a pending booking (owner only)
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Booking accepted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BookingResponse'
+        '400':
+          description: Invalid state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '409':
+          description: Conflicting booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /bookings/{bookingId}/cancel:
+    post:
+      tags:
+        - Bookings
+      summary: Cancel a booking (owner or traveler)
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Booking cancelled
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BookingResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Booking not found
           content:
             application/json:
               schema:
