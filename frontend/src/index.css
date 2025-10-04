@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  @apply bg-base-200 text-airbnb-charcoal;
+}
+
+@layer components {
+  .btn-primary {
+    @apply border-transparent bg-[#FF5A5F] text-white hover:bg-[#E0484D];
+  }
+
+  .btn-secondary {
+    @apply border-transparent bg-[#00A699] text-white hover:bg-[#008c82];
+  }
+
+  input[type='radio']:checked {
+    @apply bg-[#FF5A5F] border-[#FF5A5F];
+  }
+
+  input[type='radio']:checked:hover {
+    @apply bg-[#E0484D] border-[#E0484D];
+  }
+
+  .join input[type='radio']:checked {
+    @apply bg-[#FF5A5F] text-white border-transparent;
+  }
+
+  .join input[type='radio']:checked:hover {
+    @apply bg-[#E0484D];
+  }
+
+  .toggle:checked {
+    @apply bg-[#FF5A5F] border-[#FF5A5F];
+  }
+
+  .toggle:checked:hover {
+    @apply bg-[#E0484D] border-[#E0484D];
+  }
+
+  .checkbox:checked {
+    @apply bg-[#FF5A5F] border-[#FF5A5F];
+  }
+
+  .checkbox:checked:hover {
+    @apply bg-[#E0484D] border-[#E0484D];
+  }
+
+  .auth-btn-group {
+    @apply flex items-center gap-3;
+  }
+
+  .auth-btn-group:has(.auth-btn:hover) .auth-btn:not(:hover) {
+    @apply bg-transparent text-airbnb-charcoal border-base-300;
+  }
+
+  .auth-btn-group .auth-btn:hover {
+    @apply bg-[#FF5A5F] text-white border-transparent;
+  }
+
+  .card-surface {
+    @apply rounded-[28px] border border-base-200 bg-base-100 shadow-[0_20px_45px_-20px_rgba(172,139,108,0.2)];
+  }
+
+  .section-shell {
+    @apply card-surface p-6 md:p-8;
+  }
+
+  .pill-badge {
+    @apply rounded-full bg-base-100 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-airbnb-charcoal/60 shadow;
+  }
+
+  .stat-card {
+    @apply card-surface flex flex-col gap-4 border-none;
+  }
+
+  .table-shell {
+    @apply overflow-hidden rounded-[24px] border border-base-200 bg-base-100 shadow-[0_18px_40px_-24px_rgba(172,139,108,0.25)];
+  }
+
+  .dashed-shell {
+    @apply rounded-[26px] border border-dashed border-base-300 bg-base-100 bg-opacity-80 px-6 py-10 text-center text-sm text-airbnb-charcoal/60 shadow-[0_12px_25px_-18px_rgba(172,139,108,0.25)];
+  }
+}
