@@ -11,6 +11,7 @@ import OwnerBookingsPage from '../pages/owner/OwnerBookingsPage';
 import TravelerDashboardPage from '../pages/traveler/TravelerDashboardPage';
 import TravelerBookingsPage from '../pages/traveler/TravelerBookingsPage';
 import TravelerFavoritesPage from '../pages/traveler/TravelerFavoritesPage';
+import ProfilePage from '../pages/ProfilePage';
 import RequireAuth from './RequireAuth';
 
 const router = createBrowserRouter([
@@ -77,6 +78,14 @@ const router = createBrowserRouter([
         element: <TravelerFavoritesPage />,
       },
     ],
+  },
+  {
+    path: '/profile',
+    element: (
+      <RequireAuth roles={['OWNER', 'TRAVELER']}>
+        <ProfilePage />
+      </RequireAuth>
+    ),
   },
   {
     path: '*',

@@ -193,8 +193,45 @@ async function getOwnerDashboard(ownerId) {
   };
 }
 
+async function updateOwnerProfile(ownerId, profileData) {
+  const user = await prisma.user.findUnique({
+    where: { id: ownerId },
+    include: { ownerProfile: true },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  let profile;
+  if (user.ownerProfile) {
+    profile = await prisma.ownerProfile.update({
+      where: { userId: ownerId },
+      data: profileData,
+    });
+  } else {
+    profile = await prisma.ownerProfile.create({
+      data: {
+        userId: ownerId,
+        ...profileData,
+      },
+    });
+  }
+
+  return {
+    id: profile.id,
+    about: profile.about,
+    location: profile.location,
+    phone: profile.phone,
+    avatarUrl: profile.avatarUrl,
+    company: profile.company,
+    updatedAt: profile.updatedAt,
+  };
+}
+
 module.exports = {
   createProperty,
   listOwnerBookings,
   getOwnerDashboard,
+  updateOwnerProfile,
 };

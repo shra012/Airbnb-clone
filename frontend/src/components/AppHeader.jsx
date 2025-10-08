@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser, useAuthActions } from '../hooks/useAuth';
+import { useState } from 'react';
 
 const navItems = [
   { label: 'Places to stay', href: '/#stays' },
@@ -19,6 +20,16 @@ export default function AppHeader() {
   };
 
   const isSignupPage = location.pathname === '/auth/signup';
+  const initials = (() => {
+    if (!user?.name) return '';
+    const parts = user.name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  })();
+
+  const [imgError, setImgError] = useState(false);
+  const avatarUrl = user?.travelerProfile?.avatarUrl || user?.ownerProfile?.avatarUrl;
+  const hasAvatar = Boolean(avatarUrl && avatarUrl.trim() !== '' && !imgError);
 
   return (
     <header className="border-b border-base-200 bg-base-100/95 backdrop-blur">
@@ -44,10 +55,29 @@ export default function AppHeader() {
               >
                 Dashboard
               </NavLink>
-              <div className="text-right text-xs text-airbnb-charcoal/70">
-                <p className="font-semibold text-airbnb-charcoal">{user.name}</p>
-                <p className="uppercase tracking-[0.2em]">{user.role}</p>
-              </div>
+              <NavLink to="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div className="avatar">
+                  <div className="h-8 w-8 rounded-full border border-base-300 overflow-hidden bg-airbnb-primary/10 flex items-center justify-center">
+                    {hasAvatar ? (
+                      <img
+                        src={avatarUrl}
+                        alt={initials || user.name}
+                        onError={() => setImgError(true)}
+                        onLoad={() => setImgError(false)}
+                        className="block h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center text-sm font-semibold leading-none text-airbnb-primary select-none text-center">
+                        {initials}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right text-xs text-airbnb-charcoal/70">
+                  <p className="font-semibold text-airbnb-charcoal">{user.name}</p>
+                  <p className="uppercase tracking-[0.2em]">{user.role}</p>
+                </div>
+              </NavLink>
               <button
                 type="button"
                 className="btn btn-primary btn-sm rounded-full"

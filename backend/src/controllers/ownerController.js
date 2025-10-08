@@ -1,9 +1,17 @@
 const { z } = require('zod');
-const { getOwnerDashboard, listOwnerBookings, createProperty } = require('../services/ownerService');
+const { getOwnerDashboard, listOwnerBookings, createProperty, updateOwnerProfile } = require('../services/ownerService');
 
 const positiveNumber = (message) => z.coerce.number({ invalid_type_error: message }).gt(0, message);
 const nonNegativeNumber = (message) => z.coerce.number({ invalid_type_error: message }).min(0, message);
 const positiveInt = (message) => z.coerce.number({ invalid_type_error: message }).int(message).gt(0, message);
+
+const ownerProfileUpdateSchema = z.object({
+  about: z.string().optional(),
+  location: z.string().optional(),
+  phone: z.string().optional(),
+  avatarUrl: z.string().url().optional(),
+  company: z.string().optional(),
+});
 
 const propertyCreateSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -76,9 +84,21 @@ async function ownerCreateProperty(req, res, next) {
   }
 }
 
+async function updateProfile(req, res, next) {
+  try {
+    const ownerId = req.session.user.id;
+    const data = await updateOwnerProfile(ownerId, req.body);
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   ownerDashboard,
   ownerBookings,
   ownerCreateProperty,
+  updateProfile,
   propertyCreateSchema,
+  ownerProfileUpdateSchema,
 };

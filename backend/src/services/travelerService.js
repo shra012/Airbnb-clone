@@ -265,8 +265,47 @@ async function listTravelerFavorites(travelerId) {
   }));
 }
 
+async function updateTravelerProfile(travelerId, profileData) {
+  const user = await prisma.user.findUnique({
+    where: { id: travelerId },
+    include: { travelerProfile: true },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  let profile;
+  if (user.travelerProfile) {
+    profile = await prisma.travelerProfile.update({
+      where: { userId: travelerId },
+      data: profileData,
+    });
+  } else {
+    profile = await prisma.travelerProfile.create({
+      data: {
+        userId: travelerId,
+        ...profileData,
+      },
+    });
+  }
+
+  return {
+    id: profile.id,
+    about: profile.about,
+    city: profile.city,
+    state: profile.state,
+    country: profile.country,
+    languages: profile.languages,
+    gender: profile.gender,
+    avatarUrl: profile.avatarUrl,
+    updatedAt: profile.updatedAt,
+  };
+}
+
 module.exports = {
   getTravelerDashboard,
   listTravelerBookings,
   listTravelerFavorites,
+  updateTravelerProfile,
 };

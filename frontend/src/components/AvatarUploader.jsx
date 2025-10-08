@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../lib/firebase';
 
-export default function AvatarUploader({ value, onChange, label = 'Profile photo' }) {
+export default function AvatarUploader({ value, onChange, label = 'Profile photo', userId, userRole }) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState(null);
   const inputId = useId();
@@ -17,11 +17,21 @@ export default function AvatarUploader({ value, onChange, label = 'Profile photo
       setError('Please choose an image smaller than 5MB.');
       return;
     }
+    
+    if (!userId || !userRole) {
+      setError('User information required for upload.');
+      return;
+    }
+
     setIsUploading(true);
     setError(null);
     try {
       const fileExtension = file.name.split('.').pop();
-      const objectRef = ref(storage, `avatars/${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExtension}`);
+      const rolePath = userRole.toLowerCase(); // 'owner' or 'traveler'
+      const timestamp = Date.now();
+      const fileName = `avatar_${timestamp}.${fileExtension}`;
+      const objectRef = ref(storage, `avatars/${rolePath}/${userId}/${fileName}`);
+      
       await uploadBytes(objectRef, file, { contentType: file.type });
       const downloadUrl = await getDownloadURL(objectRef);
       onChange(downloadUrl);
@@ -84,6 +94,8 @@ AvatarUploader.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   label: PropTypes.string,
+  userId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  userRole: PropTypes.oneOf(['OWNER', 'TRAVELER']).isRequired,
 };
 
 AvatarUploader.defaultProps = {
