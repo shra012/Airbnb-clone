@@ -37,6 +37,35 @@ export default function DashboardLayout() {
                 Bookings board
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to="/owner/properties"
+                end
+                className={({ isActive }) =>
+                  `rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-airbnb-primary text-white'
+                      : 'text-airbnb-charcoal/70 hover:bg-airbnb-cream'
+                  }`
+                }
+              >
+                All properties
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/owner/properties/new"
+                className={({ isActive }) =>
+                  `rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-airbnb-primary text-white'
+                      : 'text-airbnb-charcoal/70 hover:bg-airbnb-cream'
+                  }`
+                }
+              >
+                Add new property
+              </NavLink>
+            </li>
           </nav>
         </aside>
         <main className="flex-1">

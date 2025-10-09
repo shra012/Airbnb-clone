@@ -3,7 +3,9 @@ import AppHeader from '../components/AppHeader';
 
 const links = [
   { to: '/traveler/dashboard', label: 'Overview' },
+  { to: '/traveler/search', label: 'Find stays' },
   { to: '/traveler/bookings', label: 'Trips' },
+  { to: '/traveler/history', label: 'Past trips' },
   { to: '/traveler/favorites', label: 'Saved stays' },
 ];
 

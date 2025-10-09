@@ -92,4 +92,18 @@ body {
   .dashed-shell {
     @apply rounded-[26px] border border-dashed border-base-300 bg-base-100 bg-opacity-80 px-6 py-10 text-center text-sm text-airbnb-charcoal/60 shadow-[0_12px_25px_-18px_rgba(172,139,108,0.25)];
   }
+
+  /* Global placeholder styling using Tailwind's placeholder utilities */
+  input,
+  textarea,
+  select {
+    @apply placeholder:opacity-30 placeholder:text-base-content;
+  }
+
+  /* DaisyUI input components with custom placeholder styling */
+  .input,
+  .textarea,
+  .select {
+    @apply placeholder:opacity-30 placeholder:text-base-content;
+  }
 }

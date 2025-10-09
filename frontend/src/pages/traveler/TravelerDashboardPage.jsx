@@ -1,24 +1,81 @@
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ErrorState from '../../components/ErrorState';
 import LoadingScreen from '../../components/LoadingScreen';
+import FirebaseImage from '../../components/FirebaseImage';
 import { useTravelerDashboard } from '../../hooks/useTravelerData';
 
 const summaryMap = [
-  { key: 'pendingRequests', label: 'Pending requests', accent: 'bg-airbnb-primary/10 text-airbnb-primary' },
-  { key: 'upcomingTrips', label: 'Upcoming trips', accent: 'bg-airbnb-secondary/10 text-airbnb-secondary' },
-  { key: 'pastTrips', label: 'Past trips', accent: 'bg-base-200 text-airbnb-charcoal' },
-  { key: 'favorites', label: 'Saved stays', accent: 'bg-airbnb-cream text-airbnb-primary' },
+  {
+    key: 'pendingRequests',
+    label: 'Pending requests',
+    accent: 'bg-airbnb-primary/10 text-airbnb-primary',
+    iconPath: '/dashboard/quick-pannel/pending-requests.png',
+  },
+  {
+    key: 'upcomingTrips',
+    label: 'Upcoming trips',
+    accent: 'bg-airbnb-secondary/10 text-airbnb-secondary',
+    iconPath: '/dashboard/quick-pannel/upcoming-stays.png',
+  },
+  {
+    key: 'pastTrips',
+    label: 'Past trips',
+    accent: 'bg-base-200 text-airbnb-charcoal',
+    iconPath: '/dashboard/quick-pannel/total-bookings.png',
+  },
+  {
+    key: 'favorites',
+    label: 'Saved stays',
+    accent: 'bg-airbnb-cream text-airbnb-primary',
+    iconPath: '/dashboard/quick-pannel/properties.png',
+    navigateTo: '/traveler/favorites',
+  },
 ];
 
+function SummaryCard({ title, value, accent, iconPath, onClick }) {
+  const CardComponent = onClick ? 'button' : 'div';
+
+  return (
+    <CardComponent
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      className={`card-surface flex items-center gap-4 p-6 ${onClick ? 'cursor-pointer text-left transition hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-airbnb-primary/40' : ''}`}
+    >
+      <div className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl ${accent}`}>
+        <FirebaseImage path={iconPath} alt={title} className="h-full w-full object-cover" />
+      </div>
+      <div className="space-y-1">
+        <span className="block text-xs uppercase tracking-[0.2em] text-airbnb-charcoal/60">{title}</span>
+        <span className="block text-2xl font-semibold text-airbnb-charcoal">{value}</span>
+      </div>
+    </CardComponent>
+  );
+}
+
 function SummaryGrid({ summary }) {
+  const navigate = useNavigate();
+
+  const cards = useMemo(
+    () =>
+      summaryMap.map(({ key, label, accent, iconPath, navigateTo }) => ({
+        key,
+        label,
+        accent,
+        iconPath,
+        onClick: navigateTo
+          ? () => {
+              navigate(navigateTo);
+            }
+          : undefined,
+      })),
+    [navigate]
+  );
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {summaryMap.map(({ key, label, accent }) => (
-        <div key={key} className="card-surface flex flex-col gap-3 p-6">
-          <span className="text-xs uppercase tracking-[0.2em] text-airbnb-charcoal/60">{label}</span>
-          <span className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-sm font-semibold ${accent}`}>
-            {summary[key] ?? 0}
-          </span>
-        </div>
+      {cards.map(({ key, label, accent, iconPath, onClick }) => (
+        <SummaryCard key={key} title={label} value={summary[key] ?? 0} accent={accent} iconPath={iconPath} onClick={onClick} />
       ))}
     </div>
   );

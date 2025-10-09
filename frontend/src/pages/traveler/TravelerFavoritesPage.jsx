@@ -1,9 +1,11 @@
 import ErrorState from '../../components/ErrorState';
 import LoadingScreen from '../../components/LoadingScreen';
-import { useTravelerFavorites } from '../../hooks/useTravelerData';
+import TravelerPropertyCard from '../../components/TravelerPropertyCard';
+import { useTravelerFavorites, useToggleFavorite } from '../../hooks/useTravelerData';
 
 export default function TravelerFavoritesPage() {
   const { data, isLoading, isError, error, refetch } = useTravelerFavorites();
+  const toggleFavorite = useToggleFavorite();
 
   if (isLoading) {
     return <LoadingScreen message="Loading favourites" />;
@@ -31,24 +33,18 @@ export default function TravelerFavoritesPage() {
       </header>
       <div className="grid gap-6 md:grid-cols-2">
         {data.map((favorite) => (
-          <div key={favorite.id} className="card-surface overflow-hidden">
-            {favorite.property.coverPhoto && (
-              <img
-                src={favorite.property.coverPhoto.url}
-                alt={favorite.property.title}
-                className="h-48 w-full object-cover"
-              />
-            )}
-            <div className="space-y-2 p-5">
-              <h3 className="text-lg font-semibold text-airbnb-charcoal">{favorite.property.title}</h3>
-              <p className="text-sm text-airbnb-charcoal/60">
-                {favorite.property.city}, {favorite.property.country}
-              </p>
-              <p className="text-sm text-airbnb-charcoal/70">
-                ${Number(favorite.property.pricePerNight).toLocaleString()} / night · Sleeps {favorite.property.maxGuests}
-              </p>
-            </div>
-          </div>
+          <TravelerPropertyCard
+            key={favorite.id}
+            property={favorite.property}
+            isFavorite
+            onToggleFavorite={() =>
+              toggleFavorite.mutate({
+                propertyId: favorite.property.id,
+                isFavorite: true,
+                property: favorite.property,
+              })
+            }
+          />
         ))}
       </div>
     </div>

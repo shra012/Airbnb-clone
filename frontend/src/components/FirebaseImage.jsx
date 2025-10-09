@@ -1,22 +1,19 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from '../lib/firebase';
 
-export default function FirebaseImage({ 
-  path, 
-  alt = '', 
-  className = '', 
+export default function FirebaseImage({
+  path,
+  alt = '',
+  className = '',
   fallback = null,
   onLoad = () => {},
-  onError = () => {}
+  onError = () => {},
 }) {
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const handleLoad = useCallback(onLoad, []);
-  const handleError = useCallback(onError, []);
 
   useEffect(() => {
     let mounted = true;
@@ -32,17 +29,17 @@ export default function FirebaseImage({
         setError(null);
         const imageRef = ref(storage, path);
         const url = await getDownloadURL(imageRef);
-        
+
         if (mounted) {
           setImageUrl(url);
           setLoading(false);
-          handleLoad(url);
+          onLoad(url);
         }
       } catch (err) {
         if (mounted) {
           setError(err.message);
           setLoading(false);
-          handleError(err);
+          onError(err);
           console.error(`Failed to load image from path: ${path}`, err);
         }
       }
@@ -53,7 +50,7 @@ export default function FirebaseImage({
     return () => {
       mounted = false;
     };
-  }, [path, handleLoad, handleError]);
+  }, [path, onLoad, onError]);
 
   if (loading) {
     return (

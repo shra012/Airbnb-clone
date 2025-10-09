@@ -5,6 +5,7 @@ const {
   travelerDashboard,
   travelerBookings,
   travelerFavorites,
+  travelerHistory,
   updateProfile,
   travelerProfileUpdateSchema,
 } = require('../controllers/travelerController');
@@ -16,6 +17,7 @@ router.use(requireAuth, requireRole('TRAVELER'));
 router.get('/dashboard', travelerDashboard);
 router.get('/bookings', travelerBookings);
 router.get('/favorites', travelerFavorites);
+router.get('/history', travelerHistory);
 router.put('/profile', validateBody(travelerProfileUpdateSchema), updateProfile);
 
 module.exports = router;

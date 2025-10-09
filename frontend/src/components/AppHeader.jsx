@@ -1,12 +1,6 @@
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser, useAuthActions } from '../hooks/useAuth';
-import { useState } from 'react';
-
-const navItems = [
-  { label: 'Places to stay', href: '/#stays' },
-  { label: 'Experiences', href: '/#experiences' },
-  { label: 'About us', href: '/#about' },
-];
+import { useMemo, useState } from 'react';
 
 export default function AppHeader() {
   const navigate = useNavigate();
@@ -31,6 +25,21 @@ export default function AppHeader() {
   const avatarUrl = user?.travelerProfile?.avatarUrl || user?.ownerProfile?.avatarUrl;
   const hasAvatar = Boolean(avatarUrl && avatarUrl.trim() !== '' && !imgError);
 
+  const navItems = useMemo(() => {
+    if (user?.role === 'TRAVELER') {
+      return [
+        { label: 'Places to stay', type: 'link', to: '/traveler/search' },
+        { label: 'Experiences', type: 'anchor', href: '/#experiences' },
+        { label: 'About us', type: 'anchor', href: '/#about' },
+      ];
+    }
+    return [
+      { label: 'Places to stay', type: 'anchor', href: '/#stays' },
+      { label: 'Experiences', type: 'anchor', href: '/#experiences' },
+      { label: 'About us', type: 'anchor', href: '/#about' },
+    ];
+  }, [user?.role]);
+
   return (
     <header className="border-b border-base-200 bg-base-100/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -40,11 +49,17 @@ export default function AppHeader() {
           </span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-airbnb-charcoal/70 md:flex">
-          {navItems.map((item) => (
-            <a key={item.label} href={item.href} className="hover:text-airbnb-primary">
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) =>
+            item.type === 'link' ? (
+              <Link key={item.label} to={item.to} className="hover:text-airbnb-primary">
+                {item.label}
+              </Link>
+            ) : (
+              <a key={item.label} href={item.href} className="hover:text-airbnb-primary">
+                {item.label}
+              </a>
+            )
+          )}
         </nav>
         <div className="flex items-center gap-3">
           {user ? (

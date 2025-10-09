@@ -85,6 +85,7 @@ function serializeBooking(booking) {
     guests: booking.guests,
     totalPrice: toNumber(booking.totalPrice),
     notes: booking.notes,
+    cancellationReason: booking.cancellationReason,
     createdAt: booking.createdAt,
     updatedAt: booking.updatedAt,
     property: summarizeProperty(booking.property),
@@ -163,7 +164,7 @@ async function createBooking(travelerId, payload) {
     });
 
     if (overlappingBooking) {
-      const error = new Error('Property is not available for the selected dates');
+      chttps://www.youtube.com/watch?v=0WlH-l1kXnoonst error = new Error('Property is not available for the selected dates');
       error.status = 409;
       throw error;
     }
@@ -249,11 +250,24 @@ async function acceptBooking(ownerId, bookingId) {
       });
     }
 
+    await tx.booking.updateMany({
+      where: {
+        propertyId: booking.property.id,
+        id: { not: bookingId },
+        status: 'PENDING',
+        AND: [{ startDate: { lt: booking.endDate } }, { endDate: { gt: booking.startDate } }],
+      },
+      data: {
+        status: 'CANCELLED',
+        cancellationReason: `Declined automatically: overlapping with booking ${bookingId}`,
+      },
+    });
+
     return serializeBooking(updated);
   });
 }
 
-async function cancelBooking(actor, bookingId) {
+async function cancelBooking(actor, bookingId, reason) {
   return prisma.$transaction(async (tx) => {
     const booking = await loadBooking(tx, bookingId);
 
@@ -272,7 +286,10 @@ async function cancelBooking(actor, bookingId) {
 
     const updated = await tx.booking.update({
       where: { id: bookingId },
-      data: { status: 'CANCELLED' },
+      data: {
+        status: 'CANCELLED',
+        cancellationReason: reason ?? null,
+      },
       include: bookingInclude,
     });
 

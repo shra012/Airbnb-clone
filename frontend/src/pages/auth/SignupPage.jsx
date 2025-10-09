@@ -14,11 +14,6 @@ const travelerDefaults = {
   password: '',
 };
 
-const tabs = [
-  { key: 'owner', label: 'Host / Owner' },
-  { key: 'traveler', label: 'Traveler' },
-];
-
 export default function SignupPage() {
   const navigate = useNavigate();
   const { signupOwner, signupTraveler } = useAuthActions();

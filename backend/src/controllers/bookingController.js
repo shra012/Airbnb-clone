@@ -22,7 +22,7 @@ const bookingIdParamsSchema = z.object({
 
 const cancelBookingBodySchema = z
   .object({
-    reason: z.string().max(500).optional(),
+    reason: z.string().trim().max(500).optional(),
   })
   .optional();
 
@@ -67,8 +67,9 @@ async function acceptBookingHandler(req, res, next) {
 async function cancelBookingHandler(req, res, next) {
   try {
     const { bookingId } = bookingIdParamsSchema.parse(req.params);
-    cancelBookingBodySchema.parse(req.body ?? {});
-    const booking = await cancelBooking(req.session.user, bookingId);
+    const body = cancelBookingBodySchema.parse(req.body ?? {}) ?? {};
+    const reason = body.reason && body.reason.length > 0 ? body.reason : undefined;
+    const booking = await cancelBooking(req.session.user, bookingId, reason);
     res.json({ success: true, data: booking });
   } catch (error) {
     next(error);

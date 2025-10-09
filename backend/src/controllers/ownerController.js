@@ -1,5 +1,12 @@
 const { z } = require('zod');
-const { getOwnerDashboard, listOwnerBookings, createProperty, updateOwnerProfile } = require('../services/ownerService');
+const {
+  getOwnerDashboard,
+  listOwnerBookings,
+  listOwnerProperties,
+  createProperty,
+  updateProperty,
+  updateOwnerProfile,
+} = require('../services/ownerService');
 
 const positiveNumber = (message) => z.coerce.number({ invalid_type_error: message }).gt(0, message);
 const nonNegativeNumber = (message) => z.coerce.number({ invalid_type_error: message }).min(0, message);
@@ -74,11 +81,39 @@ async function ownerBookings(req, res, next) {
   }
 }
 
+async function ownerProperties(req, res, next) {
+  try {
+    const ownerId = req.session.user.id;
+    const page = req.query.page ? Number.parseInt(req.query.page, 10) : undefined;
+    const pageSize = req.query.pageSize ? Number.parseInt(req.query.pageSize, 10) : undefined;
+    const data = await listOwnerProperties(ownerId, { page, pageSize });
+    res.json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function ownerCreateProperty(req, res, next) {
   try {
     const ownerId = req.session.user.id;
     const property = await createProperty(ownerId, req.body);
     res.status(201).json({ success: true, data: property });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function ownerUpdateProperty(req, res, next) {
+  try {
+    const ownerId = req.session.user.id;
+    const propertyId = Number(req.params.propertyId);
+    
+    if (Number.isNaN(propertyId) || propertyId <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid property ID' });
+    }
+
+    const property = await updateProperty(ownerId, propertyId, req.body);
+    res.json({ success: true, data: property });
   } catch (error) {
     next(error);
   }
@@ -97,7 +132,9 @@ async function updateProfile(req, res, next) {
 module.exports = {
   ownerDashboard,
   ownerBookings,
+  ownerProperties,
   ownerCreateProperty,
+  ownerUpdateProperty,
   updateProfile,
   propertyCreateSchema,
   ownerProfileUpdateSchema,

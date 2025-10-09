@@ -137,6 +137,7 @@ model Booking {
   guests       Int
   totalPrice   Decimal?       @map("total_price") @db.Decimal(10, 2)
   notes        String?
+  cancellationReason String?  @map("cancellation_reason")
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
 

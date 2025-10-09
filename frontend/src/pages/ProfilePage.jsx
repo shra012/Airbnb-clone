@@ -1,23 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '../hooks/useAuth';
 import { useUpdateTravelerProfile, useUpdateOwnerProfile } from '../hooks/useProfile';
-import { uploadImageToFirebase } from '../lib/imageUpload';
 import AvatarUploader from '../components/AvatarUploader';
 import LoadingScreen from '../components/LoadingScreen';
 import ErrorState from '../components/ErrorState';
+import geoData from '../data/geo.json';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { data: user, isLoading: userLoading, error: userError } = useCurrentUser();
   const updateTravelerProfile = useUpdateTravelerProfile();
   const updateOwnerProfile = useUpdateOwnerProfile();
-  
+
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const countries = useMemo(() => geoData.countries ?? [], []);
+  const usStates = useMemo(() => geoData.usStates ?? [], []);
 
   // Initialize form data when user data loads
   useEffect(() => {
@@ -47,20 +48,6 @@ export default function ProfilePage() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleAvatarChange = async (file) => {
-    if (!file || !user) return;
-
-    setUploadingAvatar(true);
-    try {
-      const result = await uploadImageToFirebase(file, user.id, user.role, 'avatar');
-      setFormData(prev => ({ ...prev, avatarUrl: result.url }));
-    } catch (err) {
-      setError(`Avatar upload failed: ${err.message}`);
-    } finally {
-      setUploadingAvatar(false);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -148,16 +135,24 @@ export default function ProfilePage() {
                   </div>
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text text-sm font-medium text-airbnb-charcoal/80">State</span>
+                      <span className="label-text text-sm font-medium text-airbnb-charcoal/80">State / Region</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="state"
                       value={formData.state}
                       onChange={handleInputChange}
-                      className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
-                      placeholder="Your state"
-                    />
+                      className="select select-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    >
+                      <option value="">Select state (US only)</option>
+                      {usStates.map((state) => (
+                        <option key={state.code} value={state.code}>
+                          {state.name} ({state.code})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="mt-1 text-xs text-airbnb-charcoal/50">
+                      If you&apos;re outside the US, leave this blank.
+                    </span>
                   </div>
                 </div>
 
@@ -165,14 +160,19 @@ export default function ProfilePage() {
                   <label className="label">
                     <span className="label-text text-sm font-medium text-airbnb-charcoal/80">Country</span>
                   </label>
-                  <input
-                    type="text"
+                  <select
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
-                    className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    placeholder="Your country"
-                  />
+                    className="select select-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  >
+                    <option value="">Select country</option>
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -282,7 +282,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 className="btn btn-primary rounded-full px-8"
-                disabled={isSubmitting || uploadingAvatar}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>

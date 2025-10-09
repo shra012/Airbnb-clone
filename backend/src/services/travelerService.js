@@ -226,6 +226,47 @@ async function listTravelerBookings(travelerId) {
   };
 }
 
+async function listTravelerHistory(travelerId) {
+  const now = new Date();
+
+  const bookings = await prisma.booking.findMany({
+    where: {
+      travelerId,
+      status: 'ACCEPTED',
+      endDate: { lt: now },
+    },
+    orderBy: [{ endDate: 'desc' }, { startDate: 'desc' }],
+    include: {
+      property: {
+        select: {
+          id: true,
+          title: true,
+          city: true,
+          state: true,
+          country: true,
+          pricePerNight: true,
+          cleaningFee: true,
+          bedrooms: true,
+          bathrooms: true,
+          maxGuests: true,
+          photos: {
+            orderBy: [{ isCover: 'desc' }, { id: 'asc' }],
+            take: 3,
+            select: {
+              id: true,
+              url: true,
+              caption: true,
+              isCover: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return bookings.map(serializeBooking);
+}
+
 async function listTravelerFavorites(travelerId) {
   const favorites = await prisma.favorite.findMany({
     where: { travelerId },
@@ -306,6 +347,7 @@ async function updateTravelerProfile(travelerId, profileData) {
 module.exports = {
   getTravelerDashboard,
   listTravelerBookings,
+  listTravelerHistory,
   listTravelerFavorites,
   updateTravelerProfile,
 };

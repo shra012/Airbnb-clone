@@ -8,9 +8,14 @@ import SignupPage from '../pages/auth/SignupPage';
 import LandingPage from '../pages/landing/LandingPage';
 import OwnerDashboardPage from '../pages/owner/OwnerDashboardPage';
 import OwnerBookingsPage from '../pages/owner/OwnerBookingsPage';
+import OwnerPropertiesPage from '../pages/owner/OwnerPropertiesPage';
+import TravelerSearchPage from '../pages/traveler/TravelerSearchPage';
+import TravelerPropertyDetailsPage from '../pages/traveler/TravelerPropertyDetailsPage';
+import AddPropertyPage from '../pages/owner/AddPropertyPage';
 import TravelerDashboardPage from '../pages/traveler/TravelerDashboardPage';
 import TravelerBookingsPage from '../pages/traveler/TravelerBookingsPage';
 import TravelerFavoritesPage from '../pages/traveler/TravelerFavoritesPage';
+import TravelerHistoryPage from '../pages/traveler/TravelerHistoryPage';
 import ProfilePage from '../pages/ProfilePage';
 import RequireAuth from './RequireAuth';
 
@@ -55,6 +60,18 @@ const router = createBrowserRouter([
         path: 'bookings',
         element: <OwnerBookingsPage />,
       },
+      {
+        path: 'properties',
+        element: <OwnerPropertiesPage />,
+      },
+      {
+        path: 'properties/new',
+        element: <AddPropertyPage />,
+      },
+      {
+        path: 'properties/:id/edit',
+        element: <AddPropertyPage />,
+      },
     ],
   },
   {
@@ -70,12 +87,24 @@ const router = createBrowserRouter([
         element: <TravelerDashboardPage />,
       },
       {
+        path: 'search',
+        element: <TravelerSearchPage />,
+      },
+      {
+        path: 'properties/:propertyId',
+        element: <TravelerPropertyDetailsPage />,
+      },
+      {
         path: 'bookings',
         element: <TravelerBookingsPage />,
       },
       {
         path: 'favorites',
         element: <TravelerFavoritesPage />,
+      },
+      {
+        path: 'history',
+        element: <TravelerHistoryPage />, 
       },
     ],
   },

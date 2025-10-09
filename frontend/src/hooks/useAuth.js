@@ -3,7 +3,7 @@ import apiClient from '../lib/apiClient';
 
 export const CURRENT_USER_QUERY_KEY = ['currentUser'];
 
-export function useCurrentUser(options = {}) {
+export function useCurrentUser() {
   return useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
@@ -18,14 +18,22 @@ export function useCurrentUser(options = {}) {
 export function useAuthActions() {
   const queryClient = useQueryClient();
 
+  const resetOwnerQueries = () => {
+    queryClient.removeQueries({ queryKey: ['ownerDashboard'], exact: false });
+    queryClient.removeQueries({ queryKey: ['ownerProperties'], exact: false });
+    queryClient.removeQueries({ queryKey: ['property'], exact: false });
+  };
+
   const login = async (payload) => {
     const { data } = await apiClient.post('/auth/login', payload);
+    resetOwnerQueries();
     queryClient.setQueryData(CURRENT_USER_QUERY_KEY, data.data);
     return data.data;
   };
 
   const logout = async () => {
     await apiClient.post('/auth/logout');
+    resetOwnerQueries();
     queryClient.setQueryData(CURRENT_USER_QUERY_KEY, null);
   };
 
