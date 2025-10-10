@@ -81,9 +81,9 @@ function SummaryGrid({ summary }) {
   );
 }
 
-function BookingList({ bookings }) {
+function BookingList({ bookings, emptyMessage = 'No trips yet.' }) {
   if (!bookings?.length) {
-    return <div className="dashed-shell text-sm">No upcoming trips just yet.</div>;
+    return <div className="dashed-shell text-sm">{emptyMessage}</div>;
   }
   return (
     <div className="grid gap-4">
@@ -171,7 +171,20 @@ export default function TravelerDashboardPage() {
             {data.upcomingBookings.length}
           </span>
         </div>
-        <BookingList bookings={data.upcomingBookings} />
+        <BookingList bookings={data.upcomingBookings} emptyMessage="No upcoming trips just yet." />
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-airbnb-charcoal">Past trips</h2>
+          <span className="badge rounded-full border-none bg-base-200 text-airbnb-charcoal/70">
+            {data.pastBookings?.length ?? 0}
+          </span>
+        </div>
+        <BookingList
+          bookings={data.pastBookings}
+          emptyMessage="Your past stays will appear here once you complete a trip."
+        />
       </section>
 
       <section className="space-y-4">

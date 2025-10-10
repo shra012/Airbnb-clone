@@ -21,13 +21,12 @@ export default function PropertyImageUploader({ images, setImages, maxImages = 1
       setUploading(prev => ({ ...prev, [fileId]: { progress: 0, file } }));
 
       try {
-        // Use a temporary property ID for organization - will be reorganized after property creation
         const tempPropertyId = `temp-${Date.now()}`;
         const uploadResult = await uploadImageToFirebase(file, tempPropertyId, 'property', 'photo');
-        
+
         const newImage = {
           id: fileId,
-          url: uploadResult.url, // Extract just the URL string from the upload result
+          url: uploadResult.url,
           caption: '',
           isCover: images.length === 0 && fileId === filesToUpload[0].name, // First image is cover by default
           tempId: fileId,

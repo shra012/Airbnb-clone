@@ -9,7 +9,8 @@
     "start": "node src/server.js",
     "prisma:migrate": "node ./scripts/prisma-cli.js migrate dev",
     "prisma:generate": "node ./scripts/prisma-cli.js generate",
-    "prisma:studio": "node ./scripts/prisma-cli.js studio"
+    "prisma:studio": "node ./scripts/prisma-cli.js studio",
+    "prisma:seed": "node ./scripts/seed.js"
   },
   "keywords": [
     "airbnb",

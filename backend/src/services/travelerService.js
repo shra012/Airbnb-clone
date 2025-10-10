@@ -62,7 +62,16 @@ function serializeBooking(booking) {
 async function getTravelerDashboard(travelerId) {
   const now = new Date();
 
-  const [profile, pendingRequests, upcomingTrips, pastTrips, favoritesCount, recentBookings, favoriteProperties] =
+  const [
+    profile,
+    pendingRequests,
+    upcomingTrips,
+    pastTrips,
+    favoritesCount,
+    recentUpcoming,
+    recentPast,
+    favoriteProperties,
+  ] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: travelerId },
@@ -91,8 +100,47 @@ async function getTravelerDashboard(travelerId) {
       prisma.booking.count({ where: { travelerId, status: 'ACCEPTED', endDate: { lt: now } } }),
       prisma.favorite.count({ where: { travelerId } }),
       prisma.booking.findMany({
-        where: { travelerId },
+        where: {
+          travelerId,
+          status: 'ACCEPTED',
+          startDate: { gte: now },
+        },
         orderBy: [{ startDate: 'asc' }, { createdAt: 'desc' }],
+        take: 5,
+        include: {
+          property: {
+            select: {
+              id: true,
+              title: true,
+              city: true,
+              state: true,
+              country: true,
+              pricePerNight: true,
+              cleaningFee: true,
+              bedrooms: true,
+              bathrooms: true,
+              maxGuests: true,
+              photos: {
+                orderBy: [{ isCover: 'desc' }, { id: 'asc' }],
+                take: 3,
+                select: {
+                  id: true,
+                  url: true,
+                  caption: true,
+                  isCover: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.booking.findMany({
+        where: {
+          travelerId,
+          status: 'ACCEPTED',
+          endDate: { lt: now },
+        },
+        orderBy: [{ endDate: 'desc' }, { createdAt: 'desc' }],
         take: 5,
         include: {
           property: {
@@ -162,7 +210,8 @@ async function getTravelerDashboard(travelerId) {
       pastTrips,
       favorites: favoritesCount,
     },
-    upcomingBookings: recentBookings.map(serializeBooking),
+    upcomingBookings: recentUpcoming.map(serializeBooking),
+    pastBookings: recentPast.map(serializeBooking),
     favoriteProperties: favoriteProperties.map((favorite) => ({
       id: favorite.id,
       createdAt: favorite.createdAt,

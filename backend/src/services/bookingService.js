@@ -164,7 +164,6 @@ async function createBooking(travelerId, payload) {
     });
 
     if (overlappingBooking) {
-      chttps://www.youtube.com/watch?v=0WlH-l1kXnoonst error = new Error('Property is not available for the selected dates');
       error.status = 409;
       throw error;
     }
