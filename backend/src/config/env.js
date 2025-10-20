@@ -54,6 +54,7 @@ const env = {
   prismaSchemaPath,
   sessionSecret: process.env.SESSION_SECRET || generateSessionId(),
   corsOrigins: (process.env.CORS_ORIGINS || "").split(",").filter(Boolean),
+  agentServiceUrl: process.env.AGENT_SERVICE_URL || "http://localhost:8000",
 };
 
 module.exports = { env };

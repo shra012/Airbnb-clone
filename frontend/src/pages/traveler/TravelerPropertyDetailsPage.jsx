@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ErrorState from '../../components/ErrorState';
 import LoadingScreen from '../../components/LoadingScreen';
 import { useProperty } from '../../hooks/usePropertyCreation';
 import { useCreateBooking } from '../../hooks/useBookings';
 import { useTravelerFavorites, useToggleFavorite } from '../../hooks/useTravelerData';
+import { useConciergeContext } from '../../context/ConciergeContext.jsx';
 
 export function ImageCarousel({ photos }) {
   const [index, setIndex] = useState(0);
@@ -110,6 +111,7 @@ export default function TravelerPropertyDetailsPage() {
   const { data: property, isLoading, isError, error, refetch } = useProperty(numericId);
   const { data: favorites } = useTravelerFavorites();
   const toggleFavorite = useToggleFavorite();
+  const { setContext: setConciergeContext, clearContext: clearConciergeContext } = useConciergeContext();
   const bookingMutation = useCreateBooking();
   const [bookingForm, setBookingForm] = useState({
     startDate: '',
@@ -120,6 +122,23 @@ export default function TravelerPropertyDetailsPage() {
   const [bookingError, setBookingError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(null);
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
+
+  useEffect(() => {
+    if (!property) {
+      return undefined;
+    }
+    setConciergeContext({
+      propertyId: property.id,
+      propertyTitle: property.title,
+      city: property.city,
+      country: property.country,
+      propertyType: property.propertyType ?? '',
+      party: property.maxGuests ? `Up to ${property.maxGuests} guests` : '',
+    });
+    return () => {
+      clearConciergeContext();
+    };
+  }, [property, setConciergeContext, clearConciergeContext]);
 
   const photos = useMemo(() => property?.photos ?? [], [property?.photos]);
   const isFavorite = useMemo(() => {

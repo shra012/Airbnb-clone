@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../lib/apiClient';
 
-export function useTravelerDashboard() {
+export function useTravelerDashboard(options = {}) {
+  const { enabled = true } = options;
+
   return useQuery({
     queryKey: ['travelerDashboard'],
     queryFn: async () => {
       const { data } = await apiClient.get('/traveler/dashboard');
       return data.data;
     },
+    enabled,
   });
 }
 
