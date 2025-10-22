@@ -2,6 +2,62 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Install: Backend",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "install"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install: Frontend",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "install"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install: Agent Service",
+      "type": "shell",
+      "command": "uv sync",
+      "options": {
+        "cwd": "${workspaceFolder}/agent-service"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "install"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install: All",
+      "dependsOn": [
+        "Install: Backend",
+        "Install: Frontend",
+        "Install: Agent Service"
+      ],
+      "dependsOrder": "parallel",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Backend: npm run dev",
       "type": "shell",
       "command": "npm run dev",
