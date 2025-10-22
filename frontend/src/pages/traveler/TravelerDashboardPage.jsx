@@ -11,18 +11,21 @@ const summaryMap = [
     label: 'Pending requests',
     accent: 'bg-airbnb-primary/10 text-airbnb-primary',
     iconPath: '/dashboard/quick-pannel/pending-requests.png',
+    navigateTo: '/traveler/bookings',
   },
   {
     key: 'upcomingTrips',
     label: 'Upcoming trips',
     accent: 'bg-airbnb-secondary/10 text-airbnb-secondary',
     iconPath: '/dashboard/quick-pannel/upcoming-stays.png',
+    navigateTo: '/traveler/bookings',
   },
   {
     key: 'pastTrips',
     label: 'Past trips',
     accent: 'bg-base-200 text-airbnb-charcoal',
     iconPath: '/dashboard/quick-pannel/total-bookings.png',
+    navigateTo: '/traveler/history',
   },
   {
     key: 'favorites',

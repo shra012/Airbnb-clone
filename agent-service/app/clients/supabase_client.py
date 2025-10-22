@@ -53,7 +53,7 @@ class SupabaseContextClient:
 
         try:
             return await asyncio.to_thread(_query)
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             logger.warning("Supabase POI query failed: %s", exc)
             return []
 
@@ -86,6 +86,6 @@ class SupabaseContextClient:
 
         try:
             return await asyncio.to_thread(_query)
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             logger.warning("Supabase events query failed: %s", exc)
             return []

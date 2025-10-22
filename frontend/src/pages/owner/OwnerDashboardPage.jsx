@@ -366,25 +366,28 @@ export default function OwnerDashboardPage() {
       value: data.summary.totalProperties,
       accent: 'bg-airbnb-primary/15 text-airbnb-primary',
       iconPath: '/dashboard/quick-pannel/properties.png',
-      onClick: handleViewAll,
+      onClick: () => navigate('/owner/properties'),
     },
     {
       title: 'Total bookings',
       value: data.summary.totalBookings,
       iconPath: '/dashboard/quick-pannel/total-bookings.png',
       accent: 'bg-airbnb-secondary/15 text-airbnb-secondary',
+      onClick: () => navigate('/owner/bookings'),
     },
     {
       title: 'Pending requests',
       value: data.summary.pendingRequests,
       iconPath: '/dashboard/quick-pannel/pending-requests.png',
       accent: 'bg-airbnb-primary/10 text-airbnb-primary',
+      onClick: () => navigate('/owner/bookings'),
     },
     {
       title: 'Upcoming stays',
       value: data.summary.upcomingBookings,
       iconPath: '/dashboard/quick-pannel/upcoming-stays.png',
       accent: 'bg-airbnb-secondary/10 text-airbnb-secondary',
+      onClick: () => navigate('/owner/bookings'),
     },
   ];
 

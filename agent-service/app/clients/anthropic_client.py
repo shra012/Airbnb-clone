@@ -23,4 +23,6 @@ class ClaudeChatClient:
             model=self._settings.anthropic_model_name,
             temperature=0.6,
             max_tokens=1800,
+            timeout=60,
+            max_retries=2,
         )

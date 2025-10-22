@@ -43,6 +43,6 @@ class TavilySearchClient:
 
         try:
             return await asyncio.to_thread(_search)
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             logger.warning("Tavily search failed: %s", exc)
             return []

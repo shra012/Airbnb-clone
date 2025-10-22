@@ -93,12 +93,12 @@ function ConciergeResponseView({ response }) {
                                 <p className="text-xs text-airbnb-charcoal/60">{activity.address}</p>
                               ) : null}
                               <div className="mt-1 flex flex-wrap gap-2 text-xs text-airbnb-charcoal/60">
-                                {activity.duration ? <span>⏱ {activity.duration}</span> : null}
-                                {activity.price_tier ? <span>💵 {activity.price_tier}</span> : null}
+                                {activity.duration ? <span>Duration: {activity.duration}</span> : null}
+                                {activity.price_tier ? <span>Price: {activity.price_tier}</span> : null}
                                 {activity.accessibility?.wheelchair_friendly ? (
-                                  <span>♿ Wheelchair-friendly</span>
+                                  <span>Wheelchair-friendly</span>
                                 ) : null}
-                                {activity.accessibility?.kid_friendly ? <span>👶 Kid-friendly</span> : null}
+                                {activity.accessibility?.kid_friendly ? <span>Kid-friendly</span> : null}
                               </div>
                               {activity.tags?.length ? (
                                 <div className="mt-2 flex flex-wrap gap-1">
@@ -142,8 +142,8 @@ function ConciergeResponseView({ response }) {
               <p className="text-sm font-semibold text-airbnb-charcoal">{restaurant.name}</p>
               <div className="mt-1 flex flex-wrap gap-2 text-xs text-airbnb-charcoal/60">
                 {restaurant.cuisine ? <span>{restaurant.cuisine}</span> : null}
-                {restaurant.price_tier ? <span>💵 {restaurant.price_tier}</span> : null}
-                {restaurant.reservation ? <span>📅 {restaurant.reservation}</span> : null}
+                {restaurant.price_tier ? <span>Price: {restaurant.price_tier}</span> : null}
+                {restaurant.reservation ? <span>Reservation: {restaurant.reservation}</span> : null}
               </div>
               {restaurant.address ? (
                 <p className="mt-1 text-xs text-airbnb-charcoal/60">{restaurant.address}</p>
@@ -183,7 +183,7 @@ function ConciergeResponseView({ response }) {
               <ul className="mt-2 space-y-2 text-sm text-airbnb-charcoal/70">
                 {bucket.items.map((item) => (
                   <li key={item.item} className="flex gap-2">
-                    <span>{item.must_have ? '✅' : '▫️'}</span>
+                    <span className="font-semibold">{item.must_have ? '[Required]' : '[Optional]'}</span>
                     <span>
                       <span className="font-medium text-airbnb-charcoal">{item.item}</span>
                       {item.reason ? <span className="text-airbnb-charcoal/60"> · {item.reason}</span> : null}
@@ -202,39 +202,109 @@ function ConciergeResponseView({ response }) {
     if (!response.insights) {
       return null;
     }
-    const { weather_summary, event_highlights, data_sources } = response.insights;
+    const { weather_summary, event_highlights, data_sources, trip_context } = response.insights;
     return (
       <section className="space-y-2">
         <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-airbnb-charcoal/60">
-          Insights
+          Trip Context & Insights
         </h3>
         <div className="rounded-3xl border border-base-200 bg-base-100 p-3 text-sm text-airbnb-charcoal/70">
+          {trip_context ? (
+            <div className="mb-3 space-y-2">
+              <p className="font-semibold text-airbnb-charcoal">Your Trip Details:</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                {trip_context.destination ? (
+                  <div>
+                    <span className="font-medium text-airbnb-charcoal">Destination:</span> {trip_context.destination}
+                  </div>
+                ) : null}
+                {trip_context.dates ? (
+                  <div>
+                    <span className="font-medium text-airbnb-charcoal">Dates:</span> {trip_context.dates}
+                  </div>
+                ) : null}
+                {trip_context.party ? (
+                  <div>
+                    <span className="font-medium text-airbnb-charcoal">Party:</span> {trip_context.party}
+                  </div>
+                ) : null}
+                {trip_context.budget ? (
+                  <div>
+                    <span className="font-medium text-airbnb-charcoal">Budget:</span> {trip_context.budget}
+                  </div>
+                ) : null}
+              </div>
+              {trip_context.interests?.length ? (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  <span className="text-xs font-medium text-airbnb-charcoal">Interests:</span>
+                  {trip_context.interests.map((interest) => (
+                    <span
+                      key={interest}
+                      className="rounded-full bg-airbnb-primary/10 px-2 py-1 text-[11px] font-medium text-airbnb-primary"
+                    >
+                      {interest}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              {trip_context.dietary_restrictions?.length ? (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  <span className="text-xs font-medium text-airbnb-charcoal">Dietary:</span>
+                  {trip_context.dietary_restrictions.map((dietary) => (
+                    <span
+                      key={dietary}
+                      className="rounded-full bg-airbnb-secondary/10 px-2 py-1 text-[11px] font-medium text-airbnb-secondary"
+                    >
+                      {dietary}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              {trip_context.mobility_needs?.length ? (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  <span className="text-xs font-medium text-airbnb-charcoal">Accessibility:</span>
+                  {trip_context.mobility_needs.map((mobility) => (
+                    <span
+                      key={mobility}
+                      className="rounded-full bg-info/10 px-2 py-1 text-[11px] font-medium text-info"
+                    >
+                      {mobility}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           {weather_summary ? (
-            <p className="mb-2">
+            <p className="mb-2 pb-2 border-t border-base-200 pt-2">
               <span className="font-semibold text-airbnb-charcoal">Weather tip:</span> {weather_summary}
             </p>
           ) : null}
           {event_highlights?.length ? (
-            <ul className="mb-2 list-disc pl-4">
-              {event_highlights.map((event) => (
-                <li key={event}>{event}</li>
-              ))}
-            </ul>
+            <div className="mb-2 pb-2 border-t border-base-200 pt-2">
+              <p className="font-semibold text-airbnb-charcoal mb-1">Events happening:</p>
+              <ul className="list-disc pl-4">
+                {event_highlights.map((event) => (
+                  <li key={event}>{event}</li>
+                ))}
+              </ul>
+            </div>
           ) : null}
-          <div className="flex flex-wrap gap-2 text-xs">
-            {data_sources?.length
-              ? data_sources
-                  .filter((item) => item.reference)
-                  .map((item) => (
-                    <span
-                      key={`${item.source}-${item.reference}`}
-                      className="rounded-full bg-base-200 px-2 py-1 font-medium text-airbnb-charcoal/60"
-                    >
-                      {item.source}: {item.reference}
-                    </span>
-                  ))
-              : null}
-          </div>
+          {data_sources?.length ? (
+            <div className="flex flex-wrap gap-2 text-xs border-t border-base-200 pt-2">
+              <span className="font-medium text-airbnb-charcoal w-full mb-1">Data sources:</span>
+              {data_sources
+                .filter((item) => item.reference)
+                .map((item) => (
+                  <span
+                    key={`${item.source}-${item.reference}`}
+                    className="rounded-full bg-base-200 px-2 py-1 font-medium text-airbnb-charcoal/60"
+                  >
+                    {item.source}: {item.reference}
+                  </span>
+                ))}
+            </div>
+          ) : null}
         </div>
       </section>
     );
@@ -301,7 +371,7 @@ function ConciergePanelContent({
       <div
         className={`absolute bottom-0 left-0 right-0 z-50 flex h-[88vh] max-h-[780px] flex-col rounded-t-3xl bg-base-100 shadow-2xl transition-transform duration-300 md:bottom-auto md:right-0 md:h-screen md:w-[420px] md:max-h-none md:rounded-none md:rounded-l-3xl ${
           isOpen ? 'translate-y-0 md:translate-x-0' : 'translate-y-full md:translate-x-full'
-        }`}
+        } relative`}
         role="dialog"
         aria-modal="true"
       >
@@ -316,64 +386,73 @@ function ConciergePanelContent({
             onClick={onClose}
             aria-label="Close concierge panel"
           >
-            ✕
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5">
-          <div className="space-y-4">
-            {messages.map((message) => {
-              if (message.role === 'user') {
-                return (
-                  <div key={message.id} className="flex justify-end">
-                    <div className="max-w-[80%] rounded-3xl bg-airbnb-primary text-sm text-white shadow-xl">
-                      <p className="px-4 py-3 whitespace-pre-line">{message.query}</p>
-                    </div>
-                  </div>
-                );
-              }
-              if (message.role === 'assistant' && message.error) {
-                return (
-                  <div key={message.id} className="flex justify-start">
-                    <div className="max-w-[85%] rounded-3xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
-                      <p>{message.error}</p>
-                      {message.correlationId ? (
-                        <p className="mt-1 text-[11px] uppercase tracking-[0.2em]">
-                          Ref: {message.correlationId}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                );
-              }
-              if (message.role === 'assistant' && message.response) {
-                return (
-                  <div key={message.id} className="flex justify-start">
-                    <div className="max-w-[85%] rounded-3xl bg-base-200/60 px-4 py-4 text-sm text-airbnb-charcoal shadow-inner">
-                      <ConciergeResponseView response={message.response} />
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
-            {isLoading ? (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-3 rounded-2xl bg-base-200/90 px-4 py-3 text-sm text-airbnb-charcoal/70 shadow-inner">
-                  <span className="loading-ellipsis text-airbnb-primary">
-                    <span className="dot" />
-                    <span className="dot" />
-                    <span className="dot" />
-                  </span>
-                  <span>Crafting a personalised plan…</span>
+        <div className="concierge-scroll flex-1 overflow-y-auto">
+          <div className="px-6 py-5">
+            {isLoading && messages.length === 0 ? (
+              <div className="flex min-h-[200px] items-center justify-center">
+                <div className="flex flex-col items-center gap-3 text-airbnb-primary">
+                  <span className="loading loading-spinner loading-lg" />
+                  <span className="text-sm font-semibold">Asking the concierge…</span>
                 </div>
               </div>
-            ) : null}
-            <div ref={messageEndRef} />
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message) => {
+                  if (message.role === 'user') {
+                    return (
+                      <div key={message.id} className="flex justify-end">
+                        <div className="max-w-[80%] rounded-3xl bg-airbnb-primary text-sm text-white shadow-xl">
+                          <p className="px-4 py-3 whitespace-pre-line">{message.query}</p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (message.role === 'assistant' && message.error) {
+                    return (
+                      <div key={message.id} className="flex justify-start">
+                        <div className="max-w-[85%] rounded-3xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
+                          <p>{message.error}</p>
+                          {message.correlationId ? (
+                            <p className="mt-1 text-[11px] uppercase tracking-[0.2em]">
+                              Ref: {message.correlationId}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (message.role === 'assistant' && message.response) {
+                    return (
+                      <div key={message.id} className="flex justify-start">
+                        <div className="max-w-[85%] rounded-3xl bg-base-200/60 px-4 py-4 text-sm text-airbnb-charcoal shadow-inner">
+                          <ConciergeResponseView response={message.response} />
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+                {isLoading && messages.length > 0 ? (
+                  <div className="flex justify-start">
+                    <div className="rounded-3xl bg-base-200/60 px-4 py-3">
+                      <div className="flex items-center gap-2 text-airbnb-primary">
+                        <span className="loading loading-spinner loading-sm" />
+                        <span className="text-sm">Thinking…</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
-        </div>
 
-        <div className="border-t border-base-200 px-6 py-5 space-y-4">
+          <div className="border-t border-base-200 px-6 py-5 space-y-4">
           {showExamples ? (
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map((prompt) => (
@@ -578,22 +657,11 @@ function ConciergePanelContent({
               type="button"
               className="btn btn-primary btn-sm rounded-full text-white"
               onClick={onSubmit}
-              disabled={
-                isLoading ||
-                !formState.checkIn ||
-                !formState.checkOut ||
-                !formState.city ||
-                !formState.country ||
-                !formState.query.trim()
-              }
+              disabled={isLoading || !formState.query.trim()}
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <span className="loading-ellipsis text-white">
-                    <span className="dot" />
-                    <span className="dot" />
-                    <span className="dot" />
-                  </span>
+                  <span className="loading loading-spinner loading-sm text-white" />
                   <span>Planning…</span>
                 </span>
               ) : (
@@ -601,7 +669,9 @@ function ConciergePanelContent({
               )}
             </button>
           </div>
+          <div ref={messageEndRef} />
         </div>
+      </div>
       </div>
     </div>,
     document.body
@@ -698,12 +768,22 @@ export default function ConciergePanel({ isOpen, onClose, onBusyChange = () => {
 
   const handleSubmit = useCallback(() => {
     setShowExamples(false);
+    
+    // Validate required fields
+    if (!formState.query.trim()) {
+      return;
+    }
+    
+    // Use default values if trip details are missing
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    
     const payload = {
       booking: {
-        check_in: formState.checkIn,
-        check_out: formState.checkOut,
-        city: formState.city,
-        country: formState.country,
+        check_in: formState.checkIn || today,
+        check_out: formState.checkOut || tomorrow,
+        city: formState.city || 'Unknown',
+        country: formState.country || 'Unknown',
         party: formState.party || undefined,
         property_type: formState.propertyType || undefined,
       },
@@ -751,16 +831,31 @@ export default function ConciergePanel({ isOpen, onClose, onBusyChange = () => {
         ]);
       },
       onError: (error) => {
-        const detail = error.response?.data?.detail;
-        const message = typeof detail === 'string' ? detail : detail?.message ?? error.message;
-        const correlationId = detail?.correlation_id || error.response?.headers?.['x-request-id'];
+        const rawDetail = error.response?.data?.detail ?? error.response?.data?.message;
+        let readableMessage = error.message ?? 'Something went wrong while planning your trip.';
+        if (typeof rawDetail === 'string') {
+          readableMessage = rawDetail;
+        } else if (rawDetail?.message && typeof rawDetail.message === 'string') {
+          readableMessage = rawDetail.message;
+        } else if (rawDetail) {
+          try {
+            readableMessage = JSON.stringify(rawDetail);
+          } catch {
+            readableMessage = String(rawDetail);
+          }
+        }
+
+        const correlationId =
+          (typeof rawDetail === 'object' && rawDetail?.correlation_id) ||
+          error.response?.data?.correlationId ||
+          error.response?.headers?.['x-request-id'];
 
         setMessages((prev) => [
           ...prev,
           {
             id: `assistant-${Date.now()}`,
             role: 'assistant',
-            error: message ?? 'Something went wrong while planning your trip.',
+            error: readableMessage,
             correlationId,
           },
         ]);

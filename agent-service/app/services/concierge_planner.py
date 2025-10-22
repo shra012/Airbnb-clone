@@ -134,8 +134,12 @@ class ConciergePlanner:
 
                 if "insights" in parsed:
                     parsed["insights"].setdefault("data_sources", context.data_sources)
+                    parsed["insights"].setdefault("trip_context", context.trip_context)
                 else:
-                    parsed["insights"] = {"data_sources": context.data_sources}
+                    parsed["insights"] = {
+                        "data_sources": context.data_sources,
+                        "trip_context": context.trip_context,
+                    }
 
                 return {"raw_response": content, "parsed": parsed}
             except ConciergePlanningError as exc:
@@ -146,7 +150,7 @@ class ConciergePlanner:
                 last_error = exc
                 last_content = content
                 continue
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception as exc:
                 logger.warning("Concierge provider %s failed: %s", provider_name, exc)
                 last_error = exc
                 last_content = content
@@ -163,7 +167,7 @@ class ConciergePlanner:
 
         try:
             return ConciergeResponse.model_validate(final_state["parsed"])
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             raise ConciergePlanningError("Failed to validate concierge response.") from exc
 
     @staticmethod
@@ -189,7 +193,7 @@ class ConciergePlanner:
             try:
                 repaired = repair_json(text)
                 return json.loads(repaired)
-            except Exception as exc:  # pylint: disable=broad-except
+            except Exception as exc:
                 raise ConciergePlanningError("Unable to parse model output JSON.") from exc
 
     @staticmethod
@@ -219,6 +223,7 @@ class ConciergePlanner:
             "restaurants": [],
             "packing_checklist": [],
             "insights": {
+                "trip_context": context.trip_context,
                 "weather_summary": message,
                 "event_highlights": [],
                 "data_sources": context.data_sources,

@@ -102,7 +102,20 @@ class PackingCategory(BaseModel):
     items: List[PackingItem] = Field(default_factory=list)
 
 
+class TripContext(BaseModel):
+    """Trip context showing what parameters were used for planning."""
+
+    destination: Optional[str] = None
+    dates: Optional[str] = None
+    party: Optional[str] = None
+    budget: Optional[str] = None
+    interests: List[str] = Field(default_factory=list)
+    dietary_restrictions: List[str] = Field(default_factory=list)
+    mobility_needs: List[str] = Field(default_factory=list)
+
+
 class ConciergeInsights(BaseModel):
+    trip_context: Optional[TripContext] = None
     weather_summary: Optional[str] = None
     event_highlights: List[str] = Field(default_factory=list)
     data_sources: List[dict] = Field(default_factory=list)
