@@ -1,132 +1,147 @@
 """Request and response models for the concierge endpoint."""
 
-from __future__ import annotations
+from __future__ import annotations 
 
-from typing import List, Optional
+from typing import List ,Optional 
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel ,Field ,ConfigDict 
 
 
-class BookingContext(BaseModel):
+class BookingContext (BaseModel ):
     """Structured booking details supplied to the concierge."""
 
-    check_in: str = Field(..., description="ISO8601 start date for the stay")
-    check_out: str = Field(..., description="ISO8601 end date for the stay")
-    city: str
-    country: str
-    party: Optional[str] = Field(default=None, description="Party composition e.g. family, couple")
-    property_type: Optional[str] = None
+    check_in :str =Field ("",description ="ISO8601 start date for the stay")
+    check_out :str =Field ("",description ="ISO8601 end date for the stay")
+    destination :Optional [str ]=Field (default =None ,description ="Destination (can be parsed into city/country)")
+    city :Optional [str ]=None 
+    country :Optional [str ]=None 
+    party :Optional [str ]=Field (default =None ,description ="Party composition e.g. family, couple")
+    property_type :Optional [str ]=None
+    adults :Optional [int ]=None
+    children :Optional [int ]=None 
 
 
-class TravelerPreferences(BaseModel):
+class TravelerPreferences (BaseModel ):
     """Traveller preferences guiding the itinerary."""
 
-    budget: Optional[str] = Field(default=None, description="Budget descriptor (e.g. premium, mid, value)")
-    interests: List[str] = Field(default_factory=list)
-    mobility_needs: List[str] = Field(default_factory=list)
-    dietary_restrictions: List[str] = Field(default_factory=list)
-    traveler_persona: Optional[str] = None
+    budget :Optional [str ]=Field (default =None ,description ="Budget descriptor (e.g. premium, mid, value)")
+    interests :List [str ]=Field (default_factory =list )
+    mobility_needs :List [str ]=Field (default_factory =list )
+    dietary_restrictions :List [str ]=Field (default_factory =list )
+    traveler_persona :Optional [str ]=None 
 
 
-class ConciergeRequest(BaseModel):
+class ConciergeRequest (BaseModel ):
     """Payload accepted by the concierge endpoint."""
 
-    booking: BookingContext
-    preferences: Optional[TravelerPreferences] = None
-    query: Optional[str] = Field(
-        default=None,
-        description="Free-text natural language query to augment structured context.",
+    model_config =ConfigDict (populate_by_name =True )
+
+    traveler_id :Optional [int ]=Field (
+    default =None ,
+    alias ="traveler_id",
+    description ="Traveler identifier to enrich context from Supabase.",
     )
-    locale: Optional[str] = Field(default=None, description="Preferred language/locale code.")
+    booking :BookingContext 
+    preferences :Optional [TravelerPreferences ]=None 
+    query :Optional [str ]=Field (
+    default =None ,
+    description ="Free-text natural language query to augment structured context.",
+    )
+    locale :Optional [str ]=Field (default =None ,description ="Preferred language/locale code.")
 
 
-class ItineraryBlock(BaseModel):
+class ItineraryBlock (BaseModel ):
     """Morning/afternoon/evening itinerary entry referencing activities."""
 
-    title: str
-    summary: Optional[str] = None
-    activity_ids: List[str] = Field(default_factory=list)
+    title :str 
+    summary :Optional [str ]=None 
+    activity_ids :List [str ]=Field (default_factory =list )
 
 
-class DayPlan(BaseModel):
+class DayPlan (BaseModel ):
     """Day-by-day plan segmented into morning/afternoon/evening blocks."""
 
-    date: Optional[str] = None
-    morning: Optional[ItineraryBlock] = None
-    afternoon: Optional[ItineraryBlock] = None
-    evening: Optional[ItineraryBlock] = None
+    date :Optional [str ]=None 
+    morning :Optional [ItineraryBlock ]=None 
+    afternoon :Optional [ItineraryBlock ]=None 
+    evening :Optional [ItineraryBlock ]=None 
 
 
-class GeoPoint(BaseModel):
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+class GeoPoint (BaseModel ):
+    latitude :Optional [float ]=None 
+    longitude :Optional [float ]=None 
 
 
-class AccessibilityFlags(BaseModel):
-    wheelchair_friendly: Optional[bool] = None
-    kid_friendly: Optional[bool] = None
+class AccessibilityFlags (BaseModel ):
+    wheelchair_friendly :Optional [bool ]=None 
+    kid_friendly :Optional [bool ]=None 
 
 
-class ActivityCard(BaseModel):
-    id: str
-    title: str
-    description: Optional[str] = None
-    address: Optional[str] = None
-    geo: Optional[GeoPoint] = None
-    price_tier: Optional[str] = None
-    duration: Optional[str] = None
-    tags: List[str] = Field(default_factory=list)
-    accessibility: AccessibilityFlags = Field(default_factory=AccessibilityFlags)
-    data_source: Optional[str] = None
+class ActivityCard (BaseModel ):
+    id :str 
+    title :str 
+    description :Optional [str ]=None 
+    address :Optional [str ]=None 
+    geo :Optional [GeoPoint ]=None 
+    price_tier :Optional [str ]=None 
+    duration :Optional [str ]=None 
+    tags :List [str ]=Field (default_factory =list )
+    accessibility :AccessibilityFlags =Field (default_factory =AccessibilityFlags )
+    data_source :Optional [str ]=None 
 
 
-class RestaurantRecommendation(BaseModel):
-    id: str
-    name: str
-    cuisine: Optional[str] = None
-    price_tier: Optional[str] = None
-    address: Optional[str] = None
-    reservation: Optional[str] = None
-    dietary_notes: List[str] = Field(default_factory=list)
-    data_source: Optional[str] = None
+class RestaurantRecommendation (BaseModel ):
+    id :str 
+    name :str 
+    cuisine :Optional [str ]=None 
+    price_tier :Optional [str ]=None 
+    address :Optional [str ]=None 
+    reservation :Optional [str ]=None 
+    dietary_notes :List [str ]=Field (default_factory =list )
+    data_source :Optional [str ]=None 
 
 
-class PackingItem(BaseModel):
-    item: str
-    reason: Optional[str] = None
-    must_have: bool = False
+class PackingItem (BaseModel ):
+    item :str 
+    reason :Optional [str ]=None 
+    must_have :bool =False 
 
 
-class PackingCategory(BaseModel):
-    category: str
-    items: List[PackingItem] = Field(default_factory=list)
+class PackingCategory (BaseModel ):
+    category :str 
+    items :List [PackingItem ]=Field (default_factory =list )
 
 
-class TripContext(BaseModel):
+class TripContext (BaseModel ):
     """Trip context showing what parameters were used for planning."""
 
-    destination: Optional[str] = None
-    dates: Optional[str] = None
-    party: Optional[str] = None
-    budget: Optional[str] = None
-    interests: List[str] = Field(default_factory=list)
-    dietary_restrictions: List[str] = Field(default_factory=list)
-    mobility_needs: List[str] = Field(default_factory=list)
+    destination :Optional [str ]=None 
+    dates :Optional [str ]=None 
+    party :Optional [str ]=None 
+    budget :Optional [str ]=None 
+    interests :List [str ]=Field (default_factory =list )
+    dietary_restrictions :List [str ]=Field (default_factory =list )
+    mobility_needs :List [str ]=Field (default_factory =list )
 
 
-class ConciergeInsights(BaseModel):
-    trip_context: Optional[TripContext] = None
-    weather_summary: Optional[str] = None
-    event_highlights: List[str] = Field(default_factory=list)
-    data_sources: List[dict] = Field(default_factory=list)
-    confidence: float = Field(default=0.6, ge=0, le=1)
+class ConciergeInsights (BaseModel ):
+    trip_context :Optional [TripContext ]=None 
+    weather_summary :Optional [str ]=None 
+    properties :List [dict ]=Field (default_factory =list ,description ="Available properties/hotels")
+    pois :List [dict ]=Field (default_factory =list ,description ="Points of interest")
+    event_highlights :List [str ]=Field (default_factory =list )
+    web_results :List [dict ]=Field (default_factory =list ,description ="Tavily web search results")
+    data_sources :List [dict ]=Field (default_factory =list )
+    confidence :float =Field (default =0.6 ,ge =0 ,le =1 )
 
 
-class ConciergeResponse(BaseModel):
+class ConciergeResponse (BaseModel ):
     """Structured concierge response consumed by the frontend."""
 
-    itinerary: List[DayPlan] = Field(default_factory=list)
-    activities: List[ActivityCard] = Field(default_factory=list)
-    restaurants: List[RestaurantRecommendation] = Field(default_factory=list)
-    packing_checklist: List[PackingCategory] = Field(default_factory=list)
-    insights: ConciergeInsights = Field(default_factory=ConciergeInsights)
+    answer :Optional [str ]=Field (default =None ,description ="Natural language answer to the user's query")
+    itinerary :List [DayPlan ]=Field (default_factory =list )
+    activities :List [ActivityCard ]=Field (default_factory =list )
+    restaurants :List [RestaurantRecommendation ]=Field (default_factory =list )
+    packing_checklist :List [PackingCategory ]=Field (default_factory =list )
+    insights :ConciergeInsights =Field (default_factory =ConciergeInsights )
+    show_insights :bool =Field (default =True ,description ="Indicates if insights should be displayed to the user.")

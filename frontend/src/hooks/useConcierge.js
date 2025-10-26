@@ -9,3 +9,12 @@ export function useConciergeAgent() {
     },
   });
 }
+
+export function useChatAgent() {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const { data } = await apiClient.post('/agent/chat', payload);
+      return data;
+    },
+  });
+}

@@ -35,6 +35,9 @@ function parseList(value) {
 }
 
 function ConciergeResponseView({ response }) {
+  if (!response) {
+    return null;
+  }
   const activitiesMap = useMemo(() => {
     if (!Array.isArray(response.activities)) {
       return new Map();
@@ -42,7 +45,7 @@ function ConciergeResponseView({ response }) {
     return new Map(response.activities.map((activity) => [activity.id, activity]));
   }, [response.activities]);
 
-  const renderItinerary = () => {
+  const itinerarySection = useMemo(() => {
     if (!response.itinerary?.length) {
       return null;
     }
@@ -125,9 +128,9 @@ function ConciergeResponseView({ response }) {
         </div>
       </section>
     );
-  };
+  }, [activitiesMap, response.itinerary]);
 
-  const renderRestaurants = () => {
+  const restaurantsSection = useMemo(() => {
     if (!response.restaurants?.length) {
       return null;
     }
@@ -165,9 +168,9 @@ function ConciergeResponseView({ response }) {
         </div>
       </section>
     );
-  };
+  }, [response.restaurants]);
 
-  const renderPacking = () => {
+  const packingSection = useMemo(() => {
     if (!response.packing_checklist?.length) {
       return null;
     }
@@ -196,23 +199,38 @@ function ConciergeResponseView({ response }) {
         </div>
       </section>
     );
-  };
+  }, [response.packing_checklist]);
 
-  const renderInsights = () => {
-    if (!response.insights) {
+  const insightsSection = useMemo(() => {
+    // Only show insights in development mode
+    const isDevelopment = import.meta.env.DEV;
+    const showInsightsFlag = response.show_insights ?? response.showInsights ?? true;
+    
+    if (!isDevelopment || !showInsightsFlag || !response.insights) {
       return null;
     }
-    const { weather_summary, event_highlights, data_sources, trip_context } = response.insights;
+    const { data_sources, trip_context } = response.insights;
+    
+    // Only show if there's trip context or data sources
+    if (!trip_context && !data_sources?.length) {
+      return null;
+    }
+    
     return (
       <section className="space-y-2">
         <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-airbnb-charcoal/60">
-          Trip Context & Insights
+          Trip context & data sources
         </h3>
         <div className="rounded-3xl border border-base-200 bg-base-100 p-3 text-sm text-airbnb-charcoal/70">
           {trip_context ? (
             <div className="mb-3 space-y-2">
-              <p className="font-semibold text-airbnb-charcoal">Your Trip Details:</p>
+              <p className="font-semibold text-airbnb-charcoal">Trip snapshot</p>
               <div className="grid grid-cols-2 gap-2 text-xs">
+                {trip_context.property_name ? (
+                  <div className="col-span-2">
+                    <span className="font-medium text-airbnb-charcoal">Property:</span> {trip_context.property_name}
+                  </div>
+                ) : null}
                 {trip_context.destination ? (
                   <div>
                     <span className="font-medium text-airbnb-charcoal">Destination:</span> {trip_context.destination}
@@ -262,11 +280,11 @@ function ConciergeResponseView({ response }) {
               ) : null}
               {trip_context.mobility_needs?.length ? (
                 <div className="flex flex-wrap gap-1 mt-2">
-                  <span className="text-xs font-medium text-airbnb-charcoal">Accessibility:</span>
+                  <span className="text-xs font-medium text-airbnb-charcoal">Mobility:</span>
                   {trip_context.mobility_needs.map((mobility) => (
                     <span
                       key={mobility}
-                      className="rounded-full bg-info/10 px-2 py-1 text-[11px] font-medium text-info"
+                      className="rounded-full bg-base-200 px-2 py-1 text-[11px] font-medium text-airbnb-charcoal/80"
                     >
                       {mobility}
                     </span>
@@ -275,47 +293,239 @@ function ConciergeResponseView({ response }) {
               ) : null}
             </div>
           ) : null}
-          {weather_summary ? (
-            <p className="mb-2 pb-2 border-t border-base-200 pt-2">
-              <span className="font-semibold text-airbnb-charcoal">Weather tip:</span> {weather_summary}
-            </p>
-          ) : null}
-          {event_highlights?.length ? (
-            <div className="mb-2 pb-2 border-t border-base-200 pt-2">
-              <p className="font-semibold text-airbnb-charcoal mb-1">Events happening:</p>
-              <ul className="list-disc pl-4">
-                {event_highlights.map((event) => (
-                  <li key={event}>{event}</li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
+
           {data_sources?.length ? (
-            <div className="flex flex-wrap gap-2 text-xs border-t border-base-200 pt-2">
-              <span className="font-medium text-airbnb-charcoal w-full mb-1">Data sources:</span>
-              {data_sources
-                .filter((item) => item.reference)
-                .map((item) => (
-                  <span
-                    key={`${item.source}-${item.reference}`}
-                    className="rounded-full bg-base-200 px-2 py-1 font-medium text-airbnb-charcoal/60"
-                  >
-                    {item.source}: {item.reference}
-                  </span>
-                ))}
+            <div className="mt-3">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-airbnb-charcoal/40">Data sources</p>
+              <ul className="mt-1 space-y-1 text-[11px] text-airbnb-charcoal/60">
+                {data_sources.map((source, index) => {
+                  const isUrl = source.reference?.startsWith('http');
+                  return (
+                    <li key={index} className="break-words">
+                      <span className="font-medium">{source.source}</span>
+                      {source.reference ? (
+                        isUrl ? (
+                          <>
+                            {' · '}
+                            <a
+                              href={source.reference}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-airbnb-primary hover:underline"
+                            >
+                              {new URL(source.reference).hostname}
+                            </a>
+                          </>
+                        ) : (
+                          <span> · {source.reference}</span>
+                        )
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           ) : null}
         </div>
       </section>
     );
-  };
+  }, [response.insights, response.showInsights, response.show_insights]);
+
+  const detailSections = useMemo(
+    () => [itinerarySection, restaurantsSection, packingSection, insightsSection].filter(Boolean),
+    [itinerarySection, restaurantsSection, packingSection, insightsSection]
+  );
+
+  const answerText = response.answer ?? response.summary ?? null;
+
+  // Extract data from insights for prominent display
+  const properties = response.insights?.properties ?? [];
+  const pois = response.insights?.pois ?? [];
+  const webResults = response.insights?.web_results ?? [];
+  const eventHighlights = response.insights?.event_highlights ?? [];
+  const weatherSummary = response.insights?.weather_summary ?? null;
 
   return (
-    <div className="space-y-6">
-      {renderItinerary()}
-      {renderRestaurants()}
-      {renderPacking()}
-      {renderInsights()}
+    <div className="space-y-4">
+      {answerText ? (
+        <div className="rounded-3xl border border-base-200 bg-base-100/80 p-4 text-sm text-airbnb-charcoal">
+          <p className="whitespace-pre-line leading-relaxed">{answerText}</p>
+        </div>
+      ) : null}
+
+      {/* Weather Summary - Prominent Display */}
+      {weatherSummary && (
+        <div className="rounded-3xl border border-amber-200 bg-amber-50/50 p-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">☀️</span>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-900/60 mb-2">
+                Weather Outlook
+              </h3>
+              <p className="text-sm leading-relaxed text-amber-900/80">{weatherSummary}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Web Search Results Section - Prominent Display */}
+      {webResults?.length > 0 ? (
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-airbnb-charcoal/60">
+            Recommended Resources
+          </h3>
+          <div className="grid gap-3">
+            {webResults.slice(0, 6).map((result, index) => (
+              <a
+                key={index}
+                href={result.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-3xl border border-base-200 bg-base-100 p-4 shadow-sm hover:shadow-md hover:border-airbnb-primary/30 transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-xl">🔗</span>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-airbnb-primary group-hover:underline line-clamp-1">
+                      {result.title || new URL(result.url).hostname}
+                    </h4>
+                    {result.content && (
+                      <p className="mt-2 text-sm leading-relaxed text-airbnb-charcoal/70 line-clamp-3">
+                        {result.content}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-airbnb-charcoal/40 truncate">
+                      {new URL(result.url).hostname}
+                    </p>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Available Properties Section - Prominent Display */}
+      {properties?.length > 0 ? (
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-airbnb-charcoal/60">
+            Available Properties
+          </h3>
+          <div className="grid gap-3">
+            {properties.slice(0, 10).map((property, index) => (
+              <div key={property.id || index} className="rounded-3xl border border-base-200 bg-base-100 p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <h4 className="text-base font-semibold text-airbnb-charcoal">{property.title}</h4>
+                    <div className="mt-2 flex flex-wrap gap-2 text-sm text-airbnb-charcoal/70">
+                      {property.city && (
+                        <span className="flex items-center gap-1">
+                          <span>📍</span>
+                          <span>{property.city}{property.state ? `, ${property.state}` : ''}</span>
+                        </span>
+                      )}
+                      {property.propertyType && (
+                        <span className="rounded-full bg-airbnb-primary/10 px-3 py-1 text-xs font-medium text-airbnb-primary capitalize">
+                          {property.propertyType}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-3 text-sm text-airbnb-charcoal/70">
+                      {property.bedrooms && <span>🛏️ {property.bedrooms} bed{property.bedrooms > 1 ? 's' : ''}</span>}
+                      {property.bathrooms && <span>🚿 {property.bathrooms} bath{property.bathrooms > 1 ? 's' : ''}</span>}
+                      {property.maxGuests && <span>👥 Max {property.maxGuests} guest{property.maxGuests > 1 ? 's' : ''}</span>}
+                    </div>
+                    {property.description && (
+                      <p className="mt-3 text-sm leading-relaxed text-airbnb-charcoal/60 line-clamp-2">
+                        {property.description}
+                      </p>
+                    )}
+                  </div>
+                  {property.pricePerNight && (
+                    <div className="flex flex-col items-end">
+                      <span className="text-lg font-bold text-airbnb-primary">${property.pricePerNight}</span>
+                      <span className="text-xs text-airbnb-charcoal/60">per night</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Points of Interest Section - Prominent Display */}
+      {pois?.length > 0 ? (
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-airbnb-charcoal/60">
+            Nearby Points of Interest
+          </h3>
+          <div className="grid gap-3">
+            {pois.slice(0, 8).map((poi, index) => (
+              <div key={poi.id || index} className="rounded-3xl border border-base-200 bg-base-100 p-4 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="text-base font-semibold text-airbnb-charcoal">{poi.title}</h4>
+                <div className="mt-2 flex flex-wrap gap-2 text-sm text-airbnb-charcoal/70">
+                  {poi.location && (
+                    <span className="flex items-center gap-1">
+                      <span>📍</span>
+                      <span className="line-clamp-1">{poi.location}</span>
+                    </span>
+                  )}
+                </div>
+                {poi.tags && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {poi.tags.split(',').slice(0, 5).map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="rounded-full bg-airbnb-secondary/10 px-2 py-1 text-xs font-medium text-airbnb-secondary"
+                      >
+                        {tag.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {poi.description && (
+                  <p className="mt-3 text-sm leading-relaxed text-airbnb-charcoal/60 line-clamp-2">
+                    {poi.description}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Event Highlights Section - Prominent Display */}
+      {eventHighlights?.length > 0 ? (
+        <section className="space-y-3">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-airbnb-charcoal/60">
+            Event Highlights
+          </h3>
+          <div className="rounded-3xl border border-base-200 bg-base-100 p-4">
+            <ul className="space-y-2">
+              {eventHighlights.map((highlight, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm text-airbnb-charcoal/80">
+                  <span className="text-airbnb-primary mt-0.5">•</span>
+                  <span className="flex-1">{highlight}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
+
+      {detailSections.length ? (
+        <details className="rounded-3xl border border-base-200 bg-base-50">
+          <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-airbnb-charcoal">
+            Additional details
+          </summary>
+          <div className="space-y-6 border-t border-base-200 px-4 py-4">
+            {detailSections.map((section, index) => (
+              <div key={index}>{section}</div>
+            ))}
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }
@@ -396,11 +606,21 @@ function ConciergePanelContent({
 
         <div className="concierge-scroll flex-1 overflow-y-auto">
           <div className="px-6 py-5">
-            {isLoading && messages.length === 0 ? (
+            {messages.length === 0 && isLoading ? (
               <div className="flex min-h-[200px] items-center justify-center">
-                <div className="flex flex-col items-center gap-3 text-airbnb-primary">
-                  <span className="loading loading-spinner loading-lg" />
-                  <span className="text-sm font-semibold">Asking the concierge…</span>
+                <div className="flex flex-col items-center gap-4">
+                  <div className="loading-ellipsis text-airbnb-primary" style={{ fontSize: '1.5rem' }}>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                  </div>
+                  <span className="text-sm font-semibold text-airbnb-charcoal/70">Asking the concierge</span>
+                </div>
+              </div>
+            ) : messages.length === 0 && !isLoading ? (
+              <div className="flex min-h-[200px] items-center justify-center">
+                <div className="text-center">
+                  <p className="text-sm text-airbnb-charcoal/50">Ask me anything about your trip!</p>
                 </div>
               </div>
             ) : (
@@ -443,9 +663,13 @@ function ConciergePanelContent({
                 {isLoading && messages.length > 0 ? (
                   <div className="flex justify-start">
                     <div className="rounded-3xl bg-base-200/60 px-4 py-3">
-                      <div className="flex items-center gap-2 text-airbnb-primary">
-                        <span className="loading loading-spinner loading-sm" />
-                        <span className="text-sm">Thinking…</span>
+                      <div className="flex items-center gap-3">
+                        <div className="loading-ellipsis text-airbnb-primary">
+                          <span className="dot"></span>
+                          <span className="dot"></span>
+                          <span className="dot"></span>
+                        </div>
+                        <span className="text-sm text-airbnb-charcoal/70">AI is thinking</span>
                       </div>
                     </div>
                   </div>
@@ -784,8 +1008,8 @@ export default function ConciergePanel({ isOpen, onClose, onBusyChange = () => {
       booking: {
         check_in: formState.checkIn || today,
         check_out: formState.checkOut || tomorrow,
-        city: formState.city || 'Unknown',
-        country: formState.country || 'Unknown',
+        city: formState.city || undefined,
+        country: formState.country || undefined,
         party: formState.party || undefined,
         property_type: formState.propertyType || undefined,
       },
@@ -871,15 +1095,15 @@ export default function ConciergePanel({ isOpen, onClose, onBusyChange = () => {
   }, [formState, conciergeMutation]);
 
   useEffect(() => {
-    onBusyChange(conciergeMutation.isLoading);
-  }, [conciergeMutation.isLoading, onBusyChange]);
+    onBusyChange(conciergeMutation.isPending);
+  }, [conciergeMutation.isPending, onBusyChange]);
 
   return (
     <ConciergePanelContent
       isOpen={isOpen}
       onClose={onClose}
       messages={messages}
-      isLoading={conciergeMutation.isLoading}
+      isLoading={conciergeMutation.isPending}
       onSubmit={handleSubmit}
       onPromptSelect={handlePromptSelect}
       formState={formState}

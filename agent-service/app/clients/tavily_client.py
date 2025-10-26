@@ -34,10 +34,8 @@ class TavilySearchClient:
         def _search() -> List[Dict[str, Any]]:
             response = self._client.search(
                 query=query,
-                search_depth="advanced",
+                search_depth="basic",
                 max_results=max_results,
-                topic="travel",
-                include_images=False,
             )
             return response.get("results", []) if isinstance(response, dict) else []
 
