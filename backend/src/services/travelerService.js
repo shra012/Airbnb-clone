@@ -252,25 +252,57 @@ async function listTravelerBookings(travelerId) {
     },
   });
 
-  const grouped = {
-    pending: [],
-    accepted: [],
-    cancelled: [],
-  };
+  const pendingBookings = [];
+  const cancelledBookings = [];
+  const acceptedBookings = [];
 
   bookings.forEach((booking) => {
-    const key = booking.status.toLowerCase();
-    if (grouped[key]) {
-      grouped[key].push(serializeBooking(booking));
+    switch (booking.status) {
+      case 'PENDING':
+        pendingBookings.push(booking);
+        break;
+      case 'ACCEPTED':
+        acceptedBookings.push(booking);
+        break;
+      case 'CANCELLED':
+        cancelledBookings.push(booking);
+        break;
+      default:
+        break;
+    }
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingAcceptedRaw = [];
+  const pastAcceptedRaw = [];
+
+  acceptedBookings.forEach((booking) => {
+    const start = new Date(booking.startDate);
+    const end = new Date(booking.endDate);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    if (end < today) {
+      pastAcceptedRaw.push(booking);
+    } else {
+      upcomingAcceptedRaw.push(booking);
     }
   });
 
   return {
-    bookings: grouped,
+    bookings: {
+      pending: pendingBookings.map(serializeBooking),
+      accepted: upcomingAcceptedRaw.map(serializeBooking),
+      past: pastAcceptedRaw.map(serializeBooking),
+      cancelled: cancelledBookings.map(serializeBooking),
+    },
     counts: {
-      pending: grouped.pending.length,
-      accepted: grouped.accepted.length,
-      cancelled: grouped.cancelled.length,
+      pending: pendingBookings.length,
+      accepted: upcomingAcceptedRaw.length,
+      past: pastAcceptedRaw.length,
+      cancelled: cancelledBookings.length,
     },
   };
 }
@@ -355,7 +387,7 @@ async function listTravelerFavorites(travelerId) {
   }));
 }
 
-async function updateTravelerProfile(travelerId, profileData) {
+async function updateTravelerProfile(travelerId, payload) {
   const user = await prisma.user.findUnique({
     where: { id: travelerId },
     include: { travelerProfile: true },
@@ -365,32 +397,73 @@ async function updateTravelerProfile(travelerId, profileData) {
     throw new Error('User not found');
   }
 
-  let profile;
-  if (user.travelerProfile) {
-    profile = await prisma.travelerProfile.update({
-      where: { userId: travelerId },
-      data: profileData,
-    });
-  } else {
-    profile = await prisma.travelerProfile.create({
-      data: {
-        userId: travelerId,
-        ...profileData,
-      },
-    });
+  const { name, email, phone, ...profileFields } = payload;
+
+  const userUpdateData = {};
+  if (name !== undefined) {
+    userUpdateData.name = name;
+  }
+  if (email !== undefined) {
+    userUpdateData.email = email;
+  }
+  if (phone !== undefined) {
+    userUpdateData.phone = phone === '' ? null : phone;
   }
 
-  return {
-    id: profile.id,
-    about: profile.about,
-    city: profile.city,
-    state: profile.state,
-    country: profile.country,
-    languages: profile.languages,
-    gender: profile.gender,
-    avatarUrl: profile.avatarUrl,
-    updatedAt: profile.updatedAt,
-  };
+  const profileUpdateData = {};
+  const profileKeys = ['about', 'city', 'state', 'country', 'languages', 'gender', 'avatarUrl'];
+
+  profileKeys.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(profileFields, key)) {
+      const value = profileFields[key];
+      if (value === undefined) {
+        return;
+      }
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        profileUpdateData[key] = trimmed === '' ? null : trimmed;
+      } else {
+        profileUpdateData[key] = value;
+      }
+    }
+  });
+
+  await prisma.$transaction(async (tx) => {
+    if (Object.keys(userUpdateData).length > 0) {
+      await tx.user.update({
+        where: { id: travelerId },
+        data: userUpdateData,
+      });
+    }
+
+    if (user.travelerProfile) {
+      if (Object.keys(profileUpdateData).length > 0) {
+        await tx.travelerProfile.update({
+          where: { userId: travelerId },
+          data: profileUpdateData,
+        });
+      }
+    } else {
+      await tx.travelerProfile.create({
+        data: {
+          userId: travelerId,
+          ...profileUpdateData,
+        },
+      });
+    }
+  });
+
+  return prisma.user.findUnique({
+    where: { id: travelerId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      phone: true,
+      travelerProfile: true,
+    },
+  });
 }
 
 module.exports = {

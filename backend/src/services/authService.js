@@ -84,6 +84,7 @@ async function getProfile(userId, role) {
         email: true,
         name: true,
         role: true,
+        phone: true,
         travelerProfile: true,
       },
     });
@@ -96,6 +97,7 @@ async function getProfile(userId, role) {
         email: true,
         name: true,
         role: true,
+        phone: true,
         ownerProfile: true,
       },
     });

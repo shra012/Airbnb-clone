@@ -155,17 +155,41 @@ async function createBooking(travelerId, payload) {
       throw error;
     }
 
-    const overlappingBooking = await tx.booking.findFirst({
+    const overlappingPending = await tx.booking.findFirst({
       where: {
         propertyId: payload.propertyId,
-        status: { in: ['PENDING', 'ACCEPTED'] },
+        travelerId,
+        status: 'PENDING',
         AND: [{ startDate: { lt: endDate } }, { endDate: { gt: startDate } }],
       },
     });
 
-    if (overlappingBooking) {
-      error.status = 409;
-      throw error;
+    if (overlappingPending) {
+      const pendingError = new Error(
+        `You already have a pending request for this stay from ${overlappingPending.startDate.toISOString().slice(0, 10)} to ${overlappingPending.endDate
+          .toISOString()
+          .slice(0, 10)}.`
+      );
+      pendingError.status = 409;
+      throw pendingError;
+    }
+
+    const overlappingAccepted = await tx.booking.findFirst({
+      where: {
+        propertyId: payload.propertyId,
+        status: 'ACCEPTED',
+        AND: [{ startDate: { lt: endDate } }, { endDate: { gt: startDate } }],
+      },
+    });
+
+    if (overlappingAccepted) {
+      const overlapError = new Error(
+        `This stay already has a confirmed booking from ${overlappingAccepted.startDate.toISOString().slice(0, 10)} to ${overlappingAccepted.endDate
+          .toISOString()
+          .slice(0, 10)}. Please pick different dates.`
+      );
+      overlapError.status = 409;
+      throw overlapError;
     }
 
     const nights = nightsBetween(startDate, endDate);

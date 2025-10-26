@@ -360,13 +360,14 @@ function ConciergePanelContent({
   return createPortal(
     <div
       className={`fixed inset-0 z-50 transition ${
-        isOpen ? 'pointer-events-auto' : 'pointer-events-none'
+        isOpen ? 'pointer-events-auto' : 'pointer-events-none invisible'
       }`}
       aria-hidden={!isOpen}
     >
       <div
         className={`absolute inset-0 bg-black/30 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose}
+        style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
       />
       <div
         className={`absolute bottom-0 left-0 right-0 z-50 flex h-[88vh] max-h-[780px] flex-col rounded-t-3xl bg-base-100 shadow-2xl transition-transform duration-300 md:bottom-auto md:right-0 md:h-screen md:w-[420px] md:max-h-none md:rounded-none md:rounded-l-3xl ${
@@ -374,6 +375,7 @@ function ConciergePanelContent({
         } relative`}
         role="dialog"
         aria-modal="true"
+        style={{ pointerEvents: 'auto' }}
       >
         <header className="flex items-start justify-between border-b border-base-200 px-6 py-5">
           <div className="space-y-2">

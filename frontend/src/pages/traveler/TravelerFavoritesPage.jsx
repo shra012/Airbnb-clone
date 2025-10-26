@@ -37,6 +37,7 @@ export default function TravelerFavoritesPage() {
             key={favorite.id}
             property={favorite.property}
             isFavorite
+            linkState={{ from: 'favorites' }}
             onToggleFavorite={() =>
               toggleFavorite.mutate({
                 propertyId: favorite.property.id,

@@ -30,13 +30,13 @@ export default function AppHeader() {
       return [
         { label: 'Places to stay', type: 'link', to: '/traveler/search' },
         { label: 'Experiences', type: 'anchor', href: '/#experiences' },
-        { label: 'About us', type: 'anchor', href: '/#about' },
+        { label: 'About us', type: 'link', to: '/about' },
       ];
     }
     return [
       { label: 'Places to stay', type: 'anchor', href: '/#stays' },
       { label: 'Experiences', type: 'anchor', href: '/#experiences' },
-      { label: 'About us', type: 'anchor', href: '/#about' },
+      { label: 'About us', type: 'link', to: '/about' },
     ];
   }, [user?.role]);
 

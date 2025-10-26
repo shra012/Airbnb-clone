@@ -13,41 +13,97 @@ export default function ProfilePage() {
   const updateTravelerProfile = useUpdateTravelerProfile();
   const updateOwnerProfile = useUpdateOwnerProfile();
 
+  const countries = useMemo(() => geoData.countries ?? [], []);
+  const usStates = useMemo(() => geoData.usStates ?? [], []);
+  const indiaStates = useMemo(() => geoData.indiaStates ?? [], []);
+  const travelerCountries = useMemo(
+    () => countries.filter((country) => country.code === 'US' || country.code === 'IN'),
+    [countries]
+  );
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const countries = useMemo(() => geoData.countries ?? [], []);
-  const usStates = useMemo(() => geoData.usStates ?? [], []);
+  const activeStateOptions = useMemo(() => {
+    if (formData.country === 'US') {
+      return usStates;
+    }
+    if (formData.country === 'IN') {
+      return indiaStates;
+    }
+    return [];
+  }, [formData.country, indiaStates, usStates]);
+  const isTraveler = user?.role === 'TRAVELER';
 
   // Initialize form data when user data loads
   useEffect(() => {
-    if (user) {
-      const profile = user.role === 'TRAVELER' ? user.travelerProfile : user.ownerProfile;
-      setFormData({
-        about: profile?.about || '',
-        avatarUrl: profile?.avatarUrl || '',
-        // Traveler-specific fields
-        ...(user.role === 'TRAVELER' && {
-          city: profile?.city || '',
-          state: profile?.state || '',
-          country: profile?.country || '',
-          languages: profile?.languages || '',
-          gender: profile?.gender || '',
-        }),
-        // Owner-specific fields
-        ...(user.role === 'OWNER' && {
-          location: profile?.location || '',
-          phone: profile?.phone || '',
-          company: profile?.company || '',
-        }),
-      });
+    if (!user) {
+      return;
     }
-  }, [user]);
+
+    const profile = isTraveler ? user.travelerProfile : user.ownerProfile;
+    const allowedCountry =
+      profile?.country && ['US', 'IN'].includes(profile.country.toUpperCase())
+        ? profile.country.toUpperCase()
+        : '';
+    const normalizedState = profile?.state ? profile.state.toUpperCase() : '';
+
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      ...(isTraveler && {
+        phone: user.phone || '',
+      }),
+      about: profile?.about || '',
+      avatarUrl: profile?.avatarUrl || '',
+      ...(isTraveler && {
+        city: profile?.city || '',
+        state: normalizedState,
+        country: allowedCountry,
+        languages: profile?.languages || '',
+        gender: profile?.gender || '',
+      }),
+      ...(!isTraveler && {
+        location: profile?.location || '',
+        phone: profile?.phone || '',
+        company: profile?.company || '',
+      }),
+    });
+  }, [isTraveler, user]);
+
+  useEffect(() => {
+    if (!formData.state) {
+      return;
+    }
+
+    const isValid = activeStateOptions.some((state) => state.code === formData.state);
+    if (!isValid) {
+      setFormData((prev) => ({ ...prev, state: '' }));
+    }
+  }, [activeStateOptions, formData.state]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+
+    if (name === 'country') {
+      const normalizedCountry = value ? value.toUpperCase() : '';
+      setFormData((prev) => ({
+        ...prev,
+        country: normalizedCountry,
+        state: '',
+      }));
+      return;
+    }
+
+    if (name === 'state') {
+      setFormData((prev) => ({
+        ...prev,
+        state: value ? value.toUpperCase() : '',
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -79,8 +135,6 @@ export default function ProfilePage() {
     return null;
   }
 
-  const isTraveler = user.role === 'TRAVELER';
-
   return (
     <div className="min-h-screen bg-base-200 pt-20">
       <div className="mx-auto max-w-2xl px-6 py-8">
@@ -102,6 +156,53 @@ export default function ProfilePage() {
               userRole={user.role}
             />
 
+            {/* Basic Info */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-sm font-medium text-airbnb-charcoal/80">Name</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name ?? ''}
+                  onChange={handleInputChange}
+                  required
+                  className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  placeholder="Your full name"
+                />
+              </div>
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text text-sm font-medium text-airbnb-charcoal/80">Email</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email ?? ''}
+                  onChange={handleInputChange}
+                  required
+                  className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  placeholder="name@example.com"
+                />
+              </div>
+              {isTraveler && (
+                <div className="form-control md:col-span-2">
+                  <label className="label">
+                    <span className="label-text text-sm font-medium text-airbnb-charcoal/80">Phone number</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone ?? ''}
+                    onChange={handleInputChange}
+                    className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    placeholder="+1 555 000 1234"
+                  />
+                </div>
+              )}
+            </div>
+
             {/* About */}
             <div className="form-control">
               <label className="label">
@@ -109,7 +210,7 @@ export default function ProfilePage() {
               </label>
               <textarea
                 name="about"
-                value={formData.about}
+                value={formData.about ?? ''}
                 onChange={handleInputChange}
                 className="textarea textarea-bordered w-full min-h-[120px] focus:outline-none focus:ring-2 focus:ring-primary/40"
                 placeholder="Tell us about yourself..."
@@ -119,7 +220,7 @@ export default function ProfilePage() {
             {/* Traveler-specific fields */}
             {isTraveler && (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="form-control">
                     <label className="label">
                       <span className="label-text text-sm font-medium text-airbnb-charcoal/80">City</span>
@@ -127,7 +228,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       name="city"
-                      value={formData.city}
+                      value={formData.city ?? ''}
                       onChange={handleInputChange}
                       className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                       placeholder="Your city"
@@ -139,19 +240,26 @@ export default function ProfilePage() {
                     </label>
                     <select
                       name="state"
-                      value={formData.state}
+                      value={formData.state ?? ''}
                       onChange={handleInputChange}
+                      disabled={activeStateOptions.length === 0}
                       className="select select-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                     >
-                      <option value="">Select state (US only)</option>
-                      {usStates.map((state) => (
+                      <option value="">
+                        {activeStateOptions.length === 0 ? 'Select a country first' : 'Select state'}
+                      </option>
+                      {activeStateOptions.map((state) => (
                         <option key={state.code} value={state.code}>
                           {state.name} ({state.code})
                         </option>
                       ))}
                     </select>
                     <span className="mt-1 text-xs text-airbnb-charcoal/50">
-                      If you&apos;re outside the US, leave this blank.
+                      {formData.country === 'US'
+                        ? 'States limited to the United States.'
+                        : formData.country === 'IN'
+                        ? 'States limited to India.'
+                        : 'Select India or the United States to choose a state.'}
                     </span>
                   </div>
                 </div>
@@ -162,12 +270,12 @@ export default function ProfilePage() {
                   </label>
                   <select
                     name="country"
-                    value={formData.country}
+                    value={formData.country ?? ''}
                     onChange={handleInputChange}
                     className="select select-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <option value="">Select country</option>
-                    {countries.map((country) => (
+                    {travelerCountries.map((country) => (
                       <option key={country.code} value={country.code}>
                         {country.name}
                       </option>
@@ -183,7 +291,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       name="languages"
-                      value={formData.languages}
+                      value={formData.languages ?? ''}
                       onChange={handleInputChange}
                       className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                       placeholder="Languages you speak"
@@ -195,7 +303,7 @@ export default function ProfilePage() {
                     </label>
                     <select
                       name="gender"
-                      value={formData.gender}
+                      value={formData.gender ?? ''}
                       onChange={handleInputChange}
                       className="select select-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                     >
@@ -220,7 +328,7 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     name="location"
-                    value={formData.location}
+                    value={formData.location ?? ''}
                     onChange={handleInputChange}
                     className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                     placeholder="Your location"
@@ -235,7 +343,7 @@ export default function ProfilePage() {
                     <input
                       type="tel"
                       name="phone"
-                      value={formData.phone}
+                      value={formData.phone ?? ''}
                       onChange={handleInputChange}
                       className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                       placeholder="Your phone number"
@@ -248,7 +356,7 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       name="company"
-                      value={formData.company}
+                      value={formData.company ?? ''}
                       onChange={handleInputChange}
                       className="input input-bordered w-full focus:outline-none focus:ring-2 focus:ring-primary/40"
                       placeholder="Company name (optional)"

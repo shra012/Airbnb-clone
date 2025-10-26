@@ -17,22 +17,30 @@ import TravelerBookingsPage from '../pages/traveler/TravelerBookingsPage';
 import TravelerFavoritesPage from '../pages/traveler/TravelerFavoritesPage';
 import TravelerHistoryPage from '../pages/traveler/TravelerHistoryPage';
 import ProfilePage from '../pages/ProfilePage';
+import AboutPage from '../pages/AboutPage';
 import RequireAuth from './RequireAuth';
+import AppErrorBoundary from '../components/AppErrorBoundary';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
+    errorElement: <AppErrorBoundary />,
     children: [
       {
         index: true,
         element: <LandingPage />,
+      },
+      {
+        path: 'about',
+        element: <AboutPage />,
       },
     ],
   },
   {
     path: '/auth',
     element: <AuthLayout />,
+    errorElement: <AppErrorBoundary />,
     children: [
       {
         path: 'login',
@@ -51,6 +59,7 @@ const router = createBrowserRouter([
         <DashboardLayout />
       </RequireAuth>
     ),
+    errorElement: <AppErrorBoundary />,
     children: [
       {
         path: 'dashboard',
@@ -81,6 +90,7 @@ const router = createBrowserRouter([
         <TravelerDashboardLayout />
       </RequireAuth>
     ),
+    errorElement: <AppErrorBoundary />,
     children: [
       {
         path: 'dashboard',
@@ -115,6 +125,7 @@ const router = createBrowserRouter([
         <ProfilePage />
       </RequireAuth>
     ),
+    errorElement: <AppErrorBoundary />,
   },
   {
     path: '*',

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../lib/apiClient';
+import { CURRENT_USER_QUERY_KEY } from './useAuth';
 
 export function useProfile() {
   return useQuery({
@@ -22,15 +23,7 @@ export function useUpdateTravelerProfile() {
     },
     onSuccess: (data) => {
       // Update the current user query with new profile data
-      queryClient.setQueryData(['currentUser'], (oldData) => {
-        if (oldData) {
-          return {
-            ...oldData,
-            travelerProfile: data,
-          };
-        }
-        return oldData;
-      });
+      queryClient.setQueryData(CURRENT_USER_QUERY_KEY, data);
       queryClient.invalidateQueries(['profile']);
     },
   });

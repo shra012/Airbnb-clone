@@ -26,7 +26,32 @@ export default function TravelerSearchPage() {
   } = usePropertySearch(activeFilters, { keepPreviousData: true });
   const { data: dashboard } = useTravelerDashboard();
   const toggleFavorite = useToggleFavorite();
-  const favoritePropertyIds = new Set((dashboard?.favoriteProperties || []).map((fav) => fav.property.id));
+  const favoritePropertyIds = useMemo(() => {
+    const favorites = dashboard?.favoriteProperties;
+    if (!Array.isArray(favorites) || favorites.length === 0) {
+      return new Set();
+    }
+
+    return new Set(
+      favorites
+        .map((favorite) => {
+          if (!favorite) {
+            return null;
+          }
+
+          if (favorite.property?.id) {
+            return favorite.property.id;
+          }
+
+          if (favorite.propertyId) {
+            return favorite.propertyId;
+          }
+
+          return favorite.property === undefined ? favorite.id ?? null : null;
+        })
+        .filter(Boolean)
+    );
+  }, [dashboard?.favoriteProperties]);
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
@@ -215,6 +240,7 @@ export default function TravelerSearchPage() {
                   key={property.id}
                   property={property}
                   isFavorite={favoritePropertyIds.has(property.id)}
+                  linkState={{ from: 'search' }}
                   onToggleFavorite={() =>
                     toggleFavorite.mutate({
                       propertyId: property.id,

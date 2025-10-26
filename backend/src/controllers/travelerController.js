@@ -8,15 +8,23 @@ const {
 } = require('../services/travelerService');
 
 const travelerProfileUpdateSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required'),
+  email: z.string().trim().email('Invalid email'),
+  phone: z.string().trim().max(30, 'Phone number is too long').optional(),
   about: z.string().optional(),
   city: z.string().optional(),
-  state: z.string().length(2, 'State must be a 2-letter abbreviation').optional().or(z.literal('')),
+  state: z
+    .string()
+    .trim()
+    .transform((val) => val.toUpperCase())
+    .refine((val) => val === '' || val.length === 2, 'State must be a 2-letter abbreviation')
+    .optional(),
   country: z
     .string()
-    .length(2, 'Country must be a 2-letter ISO code')
+    .trim()
     .transform((val) => val.toUpperCase())
-    .optional()
-    .or(z.literal('')),
+    .refine((val) => val === '' || val === 'US' || val === 'IN', 'Country must be India or United States')
+    .optional(),
   languages: z.string().optional(),
   gender: z.string().optional(),
   avatarUrl: z.string().url().optional(),

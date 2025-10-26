@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-export default function TravelerPropertyCard({ property, isFavorite, onToggleFavorite }) {
+export default function TravelerPropertyCard({ property, isFavorite, onToggleFavorite, linkState }) {
   const price = Number(property.pricePerNight ?? 0);
   const guests = Number(property.maxGuests ?? 0);
 
@@ -14,6 +14,7 @@ export default function TravelerPropertyCard({ property, isFavorite, onToggleFav
   return (
     <Link
       to={`/traveler/properties/${property.id}`}
+      state={linkState}
       className="card-surface relative block overflow-hidden transition hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-airbnb-primary/40"
     >
       <button
@@ -69,9 +70,11 @@ TravelerPropertyCard.propTypes = {
   }).isRequired,
   isFavorite: PropTypes.bool,
   onToggleFavorite: PropTypes.func,
+  linkState: PropTypes.object,
 };
 
 TravelerPropertyCard.defaultProps = {
   isFavorite: false,
   onToggleFavorite: undefined,
+  linkState: undefined,
 };
