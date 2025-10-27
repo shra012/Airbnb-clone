@@ -1,0 +1,33 @@
+services:
+  agent-service:
+    build:
+      context: ./agent-service
+    env_file:
+      - ./agent-service/.env
+    environment:
+      ENVIRONMENT: production
+      AGENT_SERVICE_PORT: 8000
+    ports:
+      - "8000:8000"
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      AGENT_SERVICE_URL: http://agent-service:8000
+    depends_on:
+      - agent-service
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_BACKEND_URL: http://backend:4000
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"

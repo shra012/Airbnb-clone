@@ -74,45 +74,47 @@ export default function AddPropertyPage() {
 
   // Populate form data when editing
   useEffect(() => {
-    if (isEditMode && existingProperty?.success && existingProperty.data) {
-      const property = existingProperty.data;
-      
-      setFormData({
-        title: property.title || '',
-        description: property.description || '',
-        propertyType: property.propertyType || '',
-        addressLine1: property.addressLine1 || '',
-        addressLine2: property.addressLine2 || '',
-        city: property.city || '',
-        state: property.state || '',
-        country: property.country || '',
-        postalCode: property.postalCode || '',
-        latitude: property.latitude?.toString() || '',
-        longitude: property.longitude?.toString() || '',
-        pricePerNight: property.pricePerNight?.toString() || '',
-        cleaningFee: property.cleaningFee?.toString() || '',
-        bedrooms: property.bedrooms?.toString() || '1',
-        bathrooms: property.bathrooms?.toString() || '1',
-        maxGuests: property.maxGuests?.toString() || '2',
-        checkInTime: property.checkInTime || '15:00',
-        checkOutTime: property.checkOutTime || '11:00',
-        amenities: (property.amenities || []).reduce((acc, amenity) => {
-          acc[amenity.label] = true;
-          return acc;
-        }, {}),
-      });
+    if (!isEditMode || !existingProperty) {
+      return;
+    }
 
-      // Set existing images
-      if (property.photos && property.photos.length > 0) {
-        const existingImages = property.photos.map((photo) => ({
-          id: `existing-${photo.id}`,
-          url: photo.url,
-          caption: photo.caption || '',
-          isCover: photo.isCover || false,
-          existingId: photo.id,
-        }));
-        setImages(existingImages);
-      }
+    const property = existingProperty;
+
+    setFormData({
+      title: property.title || '',
+      description: property.description || '',
+      propertyType: property.propertyType || '',
+      addressLine1: property.addressLine1 || '',
+      addressLine2: property.addressLine2 || '',
+      city: property.city || '',
+      state: property.state || '',
+      country: property.country || '',
+      postalCode: property.postalCode || '',
+      latitude: property.latitude?.toString() || '',
+      longitude: property.longitude?.toString() || '',
+      pricePerNight: property.pricePerNight?.toString() || '',
+      cleaningFee: property.cleaningFee?.toString() || '',
+      bedrooms: property.bedrooms?.toString() || '1',
+      bathrooms: property.bathrooms?.toString() || '1',
+      maxGuests: property.maxGuests?.toString() || '2',
+      checkInTime: property.checkInTime || '15:00',
+      checkOutTime: property.checkOutTime || '11:00',
+      amenities: (property.amenities || []).reduce((acc, amenity) => {
+        const key = typeof amenity === 'string' ? amenity : amenity.label;
+        acc[key] = true;
+        return acc;
+      }, {}),
+    });
+
+    if (property.photos?.length) {
+      const existingImages = property.photos.map((photo) => ({
+        id: `existing-${photo.id}`,
+        url: photo.url,
+        caption: photo.caption || '',
+        isCover: photo.isCover || false,
+        existingId: photo.id,
+      }));
+      setImages(existingImages);
     }
   }, [isEditMode, existingProperty]);
 

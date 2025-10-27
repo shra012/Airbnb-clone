@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging 
 from typing import Any ,Dict ,List ,Optional 
 
-from langchain_core .tools import tool 
+from langchain_core.tools import tool 
 
 from ..clients .supabase_client import SupabaseContextClient 
 
