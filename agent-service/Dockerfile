@@ -1,14 +1,9 @@
-FROM python:3.12-slim AS base
+FROM python:3.12 AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
-
-# Install build tools required for some Python packages.
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential && \
-    rm -rf /var/lib/apt/lists/*
 
 # Copy dependency manifests first to leverage Docker layer caching.
 COPY requirements.txt ./

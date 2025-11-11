@@ -1,0 +1,7 @@
+{
+  "python_version": "3.12",
+  "dependencies": ["-e ."],
+  "graphs": {
+    "concierge": "./langgraph_app.py:graph"
+  }
+}

@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 .env
 agent_service.egg-info/
+.langgraph_api
