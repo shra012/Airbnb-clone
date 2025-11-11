@@ -8,4 +8,10 @@ function serializeUser(user) {
   };
 }
 
-module.exports = { serializeUser };
+function persistSessionUser(session, user) {
+  session.user = user;
+  session.userId = user.id;
+  session.userRole = user.role;
+}
+
+module.exports = { serializeUser, persistSessionUser };

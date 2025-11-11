@@ -1,5 +1,6 @@
 const { Prisma } = require('@prisma/client');
 const { prisma } = require('../config/prisma');
+const { publishBookingRequestEvent, publishBookingStatusEvent } = require('../messaging/bookingEvents');
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const BOOKING_BLOCK_REASON_PREFIX = 'Booking';
@@ -55,6 +56,7 @@ function toNumber(value) {
 function summarizeProperty(property) {
   return {
     id: property.id,
+    ownerId: property.ownerId,
     title: property.title,
     city: property.city,
     state: property.state,
@@ -131,7 +133,7 @@ async function createBooking(travelerId, payload) {
     throw error;
   }
 
-  return prisma.$transaction(async (tx) => {
+  const booking = await prisma.$transaction(async (tx) => {
     const property = await tx.property.findUnique({
       where: { id: payload.propertyId },
       select: {
@@ -213,10 +215,13 @@ async function createBooking(travelerId, payload) {
     const booking = await loadBooking(tx, created.id);
     return serializeBooking(booking);
   });
+
+  await publishBookingRequestEvent(booking);
+  return booking;
 }
 
 async function acceptBooking(ownerId, bookingId) {
-  return prisma.$transaction(async (tx) => {
+  const booking = await prisma.$transaction(async (tx) => {
     const booking = await loadBooking(tx, bookingId);
 
     if (booking.property.ownerId !== ownerId) {
@@ -288,10 +293,13 @@ async function acceptBooking(ownerId, bookingId) {
 
     return serializeBooking(updated);
   });
+
+  await publishBookingStatusEvent(booking);
+  return booking;
 }
 
 async function cancelBooking(actor, bookingId, reason) {
-  return prisma.$transaction(async (tx) => {
+  const booking = await prisma.$transaction(async (tx) => {
     const booking = await loadBooking(tx, bookingId);
 
     const isOwner = actor.role === 'OWNER' && booking.property.ownerId === actor.id;
@@ -328,6 +336,9 @@ async function cancelBooking(actor, bookingId, reason) {
 
     return serializeBooking(updated);
   });
+
+  await publishBookingStatusEvent(booking);
+  return booking;
 }
 
 module.exports = {

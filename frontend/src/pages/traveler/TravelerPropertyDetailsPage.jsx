@@ -6,6 +6,7 @@ import { useProperty } from '../../hooks/usePropertyCreation';
 import { useCreateBooking } from '../../hooks/useBookings';
 import { useTravelerFavorites, useToggleFavorite } from '../../hooks/useTravelerData';
 import { useConciergeContext } from '../../context/ConciergeContext.jsx';
+import PropertyUpdatesPanel from '../../components/PropertyUpdatesPanel.jsx';
 
 export function ImageCarousel({ photos }) {
   const [index, setIndex] = useState(0);
@@ -406,6 +407,8 @@ export default function TravelerPropertyDetailsPage() {
           </div>
         </aside>
       </section>
+
+      <PropertyUpdatesPanel propertyId={property.id} />
     </div>
   );
 }

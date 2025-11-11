@@ -8,6 +8,14 @@ const bookingSections = [
   { key: 'cancelled', title: 'Cancelled plans', badgeClass: 'bg-base-200 text-airbnb-charcoal/70' },
 ];
 
+function formatDate(rangeStart, rangeEnd) {
+  try {
+    return `${new Date(rangeStart).toLocaleDateString()} → ${new Date(rangeEnd).toLocaleDateString()}`;
+  } catch {
+    return `${rangeStart} → ${rangeEnd}`;
+  }
+}
+
 function BookingGroup({ title, bookings, badgeClass }) {
   return (
     <section className="space-y-4">
@@ -28,14 +36,20 @@ function BookingGroup({ title, bookings, badgeClass }) {
             </thead>
             <tbody>
               {bookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td className="font-medium text-airbnb-charcoal">{booking.property.title}</td>
+                <tr key={booking.id} className="align-top">
+                  <td className="font-medium text-airbnb-charcoal">
+                    <div>{booking.property.title}</div>
+                    {booking.cancellationReason ? (
+                      <p className="mt-1 text-xs text-error">
+                        Denied: {booking.cancellationReason}
+                      </p>
+                    ) : null}
+                  </td>
                   <td className="text-sm text-airbnb-charcoal/70">
                     {booking.property.city}, {booking.property.country}
                   </td>
                   <td className="text-sm text-airbnb-charcoal/70">
-                    {new Date(booking.startDate).toLocaleDateString()} →{' '}
-                    {new Date(booking.endDate).toLocaleDateString()}
+                    {formatDate(booking.startDate, booking.endDate)}
                   </td>
                   <td className="text-sm text-airbnb-charcoal/70">{booking.guests}</td>
                 </tr>

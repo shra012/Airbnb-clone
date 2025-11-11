@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useCurrentUser, useAuthActions } from '../hooks/useAuth';
 import { useMemo, useState } from 'react';
+import NotificationBell from './NotificationBell';
 
 export default function AppHeader() {
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ export default function AppHeader() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              <NotificationBell />
               <NavLink
                 to={user.role === 'OWNER' ? '/owner/dashboard' : '/traveler/dashboard'}
                 className="btn btn-ghost btn-sm rounded-full"

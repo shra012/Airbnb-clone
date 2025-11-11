@@ -1,5 +1,6 @@
 const { Prisma } = require('@prisma/client');
 const { prisma } = require('../config/prisma');
+const { publishPropertyNotification } = require('../messaging/propertyEvents');
 
 function decimalOrNull(value) {
   return value === undefined || value === null ? null : new Prisma.Decimal(value);
@@ -169,6 +170,7 @@ async function createProperty(ownerId, payload) {
     },
   });
 
+  await publishPropertyNotification(property, 'PROPERTY_CREATED');
   return property;
 }
 
@@ -413,6 +415,7 @@ async function updateProperty(ownerId, propertyId, payload) {
     },
   });
 
+  await publishPropertyNotification(property, 'PROPERTY_UPDATED');
   return property;
 }
 

@@ -1,5 +1,6 @@
 const { z } = require('zod');
 const { searchProperties, getPropertyById } = require('../services/propertyService');
+const { getPropertyNotifications } = require('../services/propertyNotificationService');
 
 const propertySearchSchema = z
   .object({
@@ -64,8 +65,23 @@ async function getProperty(req, res, next) {
   }
 }
 
+async function listPropertyNotificationsHandler(req, res, next) {
+  try {
+    const propertyId = Number(req.params.propertyId);
+    if (Number.isNaN(propertyId) || propertyId <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid property id' });
+    }
+    const limit = req.query.limit ? Number(req.query.limit) : 20;
+    const data = await getPropertyNotifications(propertyId, limit);
+    return res.json({ success: true, data });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   propertySearchSchema,
   listProperties,
   getProperty,
+  listPropertyNotificationsHandler,
 };

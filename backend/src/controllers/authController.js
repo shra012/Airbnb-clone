@@ -5,7 +5,7 @@ const {
   authenticate,
   getProfile,
 } = require('../services/authService');
-const { serializeUser } = require('../utils/session');
+const { serializeUser, persistSessionUser } = require('../utils/session');
 
 const travelerSignupSchema = z.object({
   name: z.string().min(1),
@@ -40,7 +40,7 @@ async function travelerSignup(req, res, next) {
   try {
     const payload = travelerSignupSchema.parse(req.body);
     const user = await registerTraveler(payload);
-    req.session.user = user;
+    persistSessionUser(req.session, user);
     res.status(201).json({ success: true, data: user });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -54,7 +54,7 @@ async function ownerSignup(req, res, next) {
   try {
     const payload = ownerSignupSchema.parse(req.body);
     const user = await registerOwner(payload);
-    req.session.user = user;
+    persistSessionUser(req.session, user);
     res.status(201).json({ success: true, data: user });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -68,7 +68,7 @@ async function login(req, res, next) {
   try {
     const payload = loginSchema.parse(req.body);
     const user = await authenticate(payload.email, payload.password);
-    req.session.user = user;
+    persistSessionUser(req.session, user);
     res.json({ success: true, data: user });
   } catch (error) {
     if (error instanceof z.ZodError) {

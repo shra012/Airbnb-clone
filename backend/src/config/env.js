@@ -96,6 +96,35 @@ const resolveSessionSecure = () => {
   return fallback;
 };
 
+const parseKafkaBrokers = () => {
+  const raw = process.env.KAFKA_BROKER_URL || "";
+  return raw
+    .split(",")
+    .map((broker) => broker.trim())
+    .filter((broker) => broker.length);
+};
+
+const kafkaBrokers = parseKafkaBrokers();
+
+const resolveMongoDatabaseName = () => {
+  if (process.env.MONGO_DATABASE_NAME) {
+    return process.env.MONGO_DATABASE_NAME;
+  }
+  const uri = process.env.MONGO_SESSION_URI;
+  if (uri) {
+    try {
+      const parsed = new URL(uri);
+      const pathname = parsed.pathname.replace(/^\//, "");
+      if (pathname) {
+        return pathname;
+      }
+    } catch (error) {
+      console.warn(`Warning: Unable to parse Mongo URI for database name (${error.message})`);
+    }
+  }
+  return "airbnb_sessions";
+};
+
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   port: parseInt(process.env.PORT || "4000", 10),
@@ -107,6 +136,10 @@ const env = {
   sessionCookieSecure: resolveSessionSecure(),
   corsOrigins: (process.env.CORS_ORIGINS || "").split(",").filter(Boolean),
   agentServiceUrl: process.env.AGENT_SERVICE_URL || "http://localhost:8000",
+  mongoSessionUri: process.env.MONGO_SESSION_URI || "",
+  mongoDatabaseName: resolveMongoDatabaseName(),
+  kafkaClientId: process.env.KAFKA_CLIENT_ID || "airbnb-backend",
+  kafkaBrokers,
 };
 
-module.exports = { env };
+module.exports = { env, generateSessionId };

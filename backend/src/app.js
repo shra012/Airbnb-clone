@@ -7,7 +7,8 @@ const session = require("express-session");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
-const { env } = require("./config/env");
+const MongoStore = require("connect-mongo");
+const { env, generateSessionId } = require("./config/env");
 const apiRoutes = require("./routes");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
@@ -26,21 +27,33 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
-app.use(
-  session({
-    name: "airbnb.sid",
-    secret: env.sessionSecret,
-    genid: () => env.sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: env.sessionCookieSecure,
-      sameSite: env.sessionCookieSameSite,
-      maxAge: 1000 * 60 * 60,
-    },
-  })
-);
+const sessionConfig = {
+  name: "airbnb.sid",
+  secret: env.sessionSecret,
+  genid: () => generateSessionId(),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: env.sessionCookieSecure,
+    sameSite: env.sessionCookieSameSite,
+    maxAge: 1000 * 60 * 60,
+  },
+};
+
+if (env.mongoSessionUri) {
+  sessionConfig.store = MongoStore.create({
+    mongoUrl: env.mongoSessionUri,
+    collectionName: "sessions",
+    ttl: 60 * 60,
+    autoRemove: "interval",
+    autoRemoveInterval: 10,
+  });
+}
+
+const sessionMiddleware = session(sessionConfig);
+
+app.use(sessionMiddleware);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
@@ -52,4 +65,4 @@ app.use("/api", apiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-module.exports = { app };
+module.exports = { app, sessionMiddleware };
