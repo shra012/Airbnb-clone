@@ -1,8 +1,6 @@
 .github/copilot-instructions.md
 .github/requirements.md
 
-# Local environment configuration
-aws/environment.sh
 
 # Terraform state and plan artifacts
 **/.terraform/*
