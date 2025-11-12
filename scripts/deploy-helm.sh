@@ -36,8 +36,9 @@ MONGO_SESSION_URI=$(extract_env_value "MONGO_SESSION_URI")
 DATABASE_URL=$(extract_env_value "DATABASE_URL")
 SESSION_SECRET=$(extract_env_value "SESSION_SECRET")
 
-# ECR Registry
-ECR_REGISTRY="171158266231.dkr.ecr.us-east-1.amazonaws.com"
+# ECR Registry - automatically detect account ID
+AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text)}"
+ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
 
 # Login to ECR
 echo -e "${YELLOW}Logging in to ECR...${NC}"
@@ -54,7 +55,7 @@ fi
 # Install/Upgrade the Helm release
 echo -e "${YELLOW}Installing Helm chart...${NC}"
 
-helm upgrade --install airbnb ./k8s/helm/airbnb \
+helm upgrade --install airbnb "${PROJECT_ROOT}/k8s/helm/airbnb" \
   --namespace airbnb-app \
   --set secrets.mongo.sessionUri="$MONGO_SESSION_URI" \
   --set secrets.supabase.databaseUrl="$DATABASE_URL" \

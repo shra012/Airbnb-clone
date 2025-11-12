@@ -54,13 +54,19 @@ fi
 
 if [[ -z "$SUBNETS" ]]; then
   echo "Collecting subnets for ${VPC_ID}..."
-  while IFS= read -r subnet; do
-    [[ -n "$subnet" ]] && SUBNET_ARRAY+=("$subnet")
+  # EKS doesn't support us-east-1e, so filter it out
+  while IFS=$'\t' read -r subnet_id az; do
+    if [[ -n "$subnet_id" && "$az" != "us-east-1e" ]]; then
+      SUBNET_ARRAY+=("$subnet_id")
+      echo "  Including subnet $subnet_id in $az"
+    elif [[ "$az" == "us-east-1e" ]]; then
+      echo "  Skipping subnet $subnet_id in $az (EKS doesn't support this AZ)"
+    fi
   done < <(aws ec2 describe-subnets \
     --region "${REGION}" \
     --filters Name=vpc-id,Values="${VPC_ID}" \
-    --query 'Subnets[].SubnetId' \
-    --output text | tr '\t' '\n')
+    --query 'Subnets[].[SubnetId,AvailabilityZone]' \
+    --output text)
 else
   IFS=',' read -r -a SUBNET_ARRAY <<< "$SUBNETS"
 fi

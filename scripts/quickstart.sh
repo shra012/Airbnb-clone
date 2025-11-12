@@ -54,11 +54,11 @@ fi
 echo -e "${GREEN}✓ Docker installed${NC}"
 
 # Check cluster access
-if ! kubectl cluster-info &> /dev/null; then
-    echo -e "${RED}✗ Cannot connect to Kubernetes cluster${NC}"
-    exit 1
-fi
-echo -e "${GREEN}✓ Kubernetes cluster accessible${NC}"
+# if ! kubectl cluster-info &> /dev/null; then
+#     echo -e "${RED}✗ Cannot connect to Kubernetes cluster${NC}"
+#     exit 1
+# fi
+# echo -e "${GREEN}✓ Kubernetes cluster accessible${NC}"
 
 # Check .env file
 if [ ! -f "${PROJECT_ROOT}/backend/.env" ]; then

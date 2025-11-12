@@ -180,20 +180,32 @@ resource "aws_security_group" "eks_nodes" {
 # EKS Cluster & Node Group
 ############################################################
 
-# Use existing manually created EKS cluster
-data "aws_eks_cluster" "main" {
-  name = var.cluster_name
+# Create EKS cluster
+resource "aws_eks_cluster" "main" {
+  name     = var.cluster_name
+  role_arn = aws_iam_role.eks_cluster.arn
+  version  = "1.31"
+
+  vpc_config {
+    subnet_ids              = var.public_subnet_ids
+    endpoint_private_access = true
+    endpoint_public_access  = true
+    security_group_ids      = [aws_security_group.eks_cluster.id]
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_cluster_policy,
+    aws_iam_role_policy_attachment.eks_vpc_resource_controller,
+  ]
+
+  tags = local.tags
 }
 
 resource "aws_eks_node_group" "main" {
-  cluster_name    = data.aws_eks_cluster.main.name
+  cluster_name    = aws_eks_cluster.main.name
   node_group_name = "airbnb-workers-v2"
   node_role_arn   = aws_iam_role.eks_node_group.arn
-  subnet_ids      = [
-    "subnet-0ea3e867ca6e9cf1f",
-    "subnet-0aa0c9c23f7a876e8",
-    "subnet-0c5419fe106ac2d65"
-  ]
+  subnet_ids      = var.public_subnet_ids
   
   instance_types = ["t3.large"]
   
@@ -218,22 +230,26 @@ resource "aws_eks_node_group" "main" {
 }
 
 # EKS Addons
-resource "aws_eks_addon" "ebs_csi_driver" {
-  cluster_name = data.aws_eks_cluster.main.name
-  addon_name   = "aws-ebs-csi-driver"
-  
-  depends_on = [aws_eks_node_group.main]
-}
+# NOTE: EBS CSI driver commented out - requires IRSA (IAM Roles for Service Accounts)
+# If you need persistent EBS volumes later, you can add it manually:
+# aws eks create-addon --cluster-name airbnb-lab2-cluster --addon-name aws-ebs-csi-driver
+#
+# resource "aws_eks_addon" "ebs_csi_driver" {
+#   cluster_name = aws_eks_cluster.main.name
+#   addon_name   = "aws-ebs-csi-driver"
+#   
+#   depends_on = [aws_eks_node_group.main]
+# }
 
 resource "aws_eks_addon" "vpc_cni" {
-  cluster_name = data.aws_eks_cluster.main.name
+  cluster_name = aws_eks_cluster.main.name
   addon_name   = "vpc-cni"
   
   depends_on = [aws_eks_node_group.main]
 }
 
 resource "aws_eks_addon" "kube_proxy" {
-  cluster_name = data.aws_eks_cluster.main.name
+  cluster_name = aws_eks_cluster.main.name
   addon_name   = "kube-proxy"
   
   depends_on = [aws_eks_node_group.main]
@@ -244,19 +260,19 @@ resource "aws_eks_addon" "kube_proxy" {
 ############################################################
 
 data "aws_eks_cluster_auth" "main" {
-  name = data.aws_eks_cluster.main.name
+  name = aws_eks_cluster.main.name
 }
 
 provider "kubernetes" {
-  host                   = data.aws_eks_cluster.main.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.main.certificate_authority[0].data)
+  host                   = aws_eks_cluster.main.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.main.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.main.token
 }
 
 provider "helm" {
   kubernetes {
-    host                   = data.aws_eks_cluster.main.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.main.certificate_authority[0].data)
+    host                   = aws_eks_cluster.main.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.main.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.main.token
   }
 }

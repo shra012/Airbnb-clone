@@ -4,7 +4,7 @@
 
 global:
   namespace: airbnb-app
-  imageRegistry: 171158266231.dkr.ecr.us-east-1.amazonaws.com
+  imageRegistry: 779926948199.dkr.ecr.us-east-1.amazonaws.com
   imagePullPolicy: IfNotPresent
   
 # Secrets configuration (will be created from environment)
