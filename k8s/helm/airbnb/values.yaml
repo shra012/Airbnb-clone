@@ -1,0 +1,211 @@
+# Default values for airbnb chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  namespace: airbnb-app
+  imageRegistry: 171158266231.dkr.ecr.us-east-1.amazonaws.com
+  imagePullPolicy: IfNotPresent
+  
+# Secrets configuration (will be created from environment)
+secrets:
+  mongo:
+    sessionUri: ""  # Set via --set or environment
+  supabase:
+    databaseUrl: ""  # Set via --set or environment
+  session:
+    secret: ""  # Set via --set or environment
+
+# Kafka configuration
+kafka:
+  enabled: true
+  brokerUrl: "airbnb-kafka.airbnb-kafka.svc.cluster.local:9092"
+  topics:
+    - name: booking.requests
+      partitions: 3
+      replicationFactor: 1
+    - name: booking.status
+      partitions: 3
+      replicationFactor: 1
+    - name: property.notifications
+      partitions: 3
+      replicationFactor: 1
+
+# Traveler Service
+travelerService:
+  enabled: true
+  name: traveler-service
+  replicaCount: 2
+  image:
+    repository: airbnb-traveler
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 4000
+    targetPort: 4000
+  env:
+    PORT: "4000"
+    NODE_ENV: "production"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Owner Service
+ownerService:
+  enabled: true
+  name: owner-service
+  replicaCount: 2
+  image:
+    repository: airbnb-owner
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 4001
+    targetPort: 4001
+  env:
+    PORT: "4001"
+    NODE_ENV: "production"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Property Service
+propertyService:
+  enabled: true
+  name: property-service
+  replicaCount: 2
+  image:
+    repository: airbnb-property
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 4002
+    targetPort: 4002
+  env:
+    PORT: "4002"
+    NODE_ENV: "production"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Booking Service
+bookingService:
+  enabled: true
+  name: booking-service
+  replicaCount: 2
+  image:
+    repository: airbnb-booking
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 4003
+    targetPort: 4003
+  env:
+    PORT: "4003"
+    NODE_ENV: "production"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Agent Service (FastAPI + LangChain)
+agentService:
+  enabled: true
+  name: agent-service
+  replicaCount: 2
+  image:
+    repository: airbnb-agent
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  env:
+    AGENT_SERVICE_PORT: "8000"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# Frontend (React)
+frontend:
+  enabled: true
+  name: frontend
+  replicaCount: 2
+  image:
+    repository: airbnb-frontend
+    tag: "latest"
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 80
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "alb"
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+  hosts:
+    - host: ""  # Will use ALB DNS
+      paths:
+        - path: /api/traveler
+          pathType: Prefix
+          service: traveler-service
+          port: 4000
+        - path: /api/owner
+          pathType: Prefix
+          service: owner-service
+          port: 4001
+        - path: /api/property
+          pathType: Prefix
+          service: property-service
+          port: 4002
+        - path: /api/booking
+          pathType: Prefix
+          service: booking-service
+          port: 4003
+        - path: /api/agent
+          pathType: Prefix
+          service: agent-service
+          port: 8000
+        - path: /
+          pathType: Prefix
+          service: frontend
+          port: 80
+
+# HorizontalPodAutoscaler
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80

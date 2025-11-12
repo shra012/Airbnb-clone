@@ -1,0 +1,66 @@
+{{- if .Values.bookingService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.bookingService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.bookingService.name }}
+spec:
+  replicas: {{ .Values.bookingService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.bookingService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.bookingService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.bookingService.name }}
+        image: {{ include "airbnb.image" (dict "Values" .Values "image" .Values.bookingService.image) }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.bookingService.service.targetPort }}
+        env:
+        - name: PORT
+          value: {{ .Values.bookingService.env.PORT | quote }}
+        - name: NODE_ENV
+          value: {{ .Values.bookingService.env.NODE_ENV | quote }}
+        - name: KAFKA_BROKER_URL
+          value: {{ .Values.kafka.brokerUrl | quote }}
+        envFrom:
+        - secretRef:
+            name: mongo-session
+        - secretRef:
+            name: supabase-postgres
+        - secretRef:
+            name: session-secret
+        resources:
+          {{- toYaml .Values.bookingService.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.bookingService.service.targetPort }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.bookingService.service.targetPort }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.bookingService.name }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  type: {{ .Values.bookingService.service.type }}
+  ports:
+  - port: {{ .Values.bookingService.service.port }}
+    targetPort: {{ .Values.bookingService.service.targetPort }}
+  selector:
+    app: {{ .Values.bookingService.name }}
+{{- end }}

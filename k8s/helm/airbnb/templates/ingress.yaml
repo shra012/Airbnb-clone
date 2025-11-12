@@ -1,0 +1,56 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: airbnb-ingress
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  - http:
+      paths:
+      - path: /api/traveler
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.travelerService.name }}
+            port:
+              number: {{ .Values.travelerService.service.port }}
+      - path: /api/owner
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.ownerService.name }}
+            port:
+              number: {{ .Values.ownerService.service.port }}
+      - path: /api/property
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.propertyService.name }}
+            port:
+              number: {{ .Values.propertyService.service.port }}
+      - path: /api/booking
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.bookingService.name }}
+            port:
+              number: {{ .Values.bookingService.service.port }}
+      - path: /api/agent
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.agentService.name }}
+            port:
+              number: {{ .Values.agentService.service.port }}
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.frontend.name }}
+            port:
+              number: {{ .Values.frontend.service.port }}
+{{- end }}

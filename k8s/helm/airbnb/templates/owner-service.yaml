@@ -1,0 +1,54 @@
+{{- if .Values.ownerService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.ownerService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.ownerService.name }}
+spec:
+  replicas: {{ .Values.ownerService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.ownerService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.ownerService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.ownerService.name }}
+        image: {{ include "airbnb.image" (dict "Values" .Values "image" .Values.ownerService.image) }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.ownerService.service.targetPort }}
+        env:
+        - name: PORT
+          value: {{ .Values.ownerService.env.PORT | quote }}
+        - name: NODE_ENV
+          value: {{ .Values.ownerService.env.NODE_ENV | quote }}
+        - name: KAFKA_BROKER_URL
+          value: {{ .Values.kafka.brokerUrl | quote }}
+        envFrom:
+        - secretRef:
+            name: mongo-session
+        - secretRef:
+            name: supabase-postgres
+        - secretRef:
+            name: session-secret
+        resources:
+          {{- toYaml .Values.ownerService.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.ownerService.name }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  type: {{ .Values.ownerService.service.type }}
+  ports:
+  - port: {{ .Values.ownerService.service.port }}
+    targetPort: {{ .Values.ownerService.service.targetPort }}
+  selector:
+    app: {{ .Values.ownerService.name }}
+{{- end }}
