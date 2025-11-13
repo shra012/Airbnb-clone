@@ -13,7 +13,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}🚀 Deploying Airbnb to Kubernetes${NC}"
+echo -e "${GREEN} Deploying Airbnb to Kubernetes${NC}"
 echo ""
 
 # Check if .env file exists
@@ -24,7 +24,7 @@ if [[ ! -f "$ENV_FILE" ]]; then
   echo -e "${YELLOW}Project root: ${PROJECT_ROOT}${NC}"
   exit 1
 fi
-echo -e "${GREEN}✓ Found .env file at $ENV_FILE${NC}"
+echo -e "${GREEN}OK Found .env file at $ENV_FILE${NC}"
 
 # Extract environment variables
 extract_env_value() {
@@ -64,7 +64,7 @@ helm upgrade --install airbnb "${PROJECT_ROOT}/k8s/helm/airbnb" \
   --wait \
   --timeout 10m
 
-echo -e "${GREEN}✅ Deployment complete!${NC}"
+echo -e "${GREEN}DONE Deployment complete!${NC}"
 echo ""
 echo -e "${YELLOW}Check deployment status:${NC}"
 echo "  kubectl get pods -n airbnb-app"

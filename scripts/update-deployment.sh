@@ -61,7 +61,7 @@ kubectl rollout status deployment -n airbnb-app --timeout=5m
 
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ Deployment updated!${NC}"
+echo -e "${GREEN}DONE Deployment updated!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 

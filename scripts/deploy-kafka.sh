@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${GREEN}🚀 Deploying Kafka to Kubernetes${NC}"
+echo -e "${GREEN} Deploying Kafka to Kubernetes${NC}"
 echo ""
 
 # Check if kubectl is available
@@ -30,7 +30,7 @@ fi
 
 echo -e "${YELLOW}Step 1: Deploying Kafka with EBS volumes...${NC}"
 kubectl apply -f "${PROJECT_ROOT}/k8s/kafka-deployment.yaml"
-echo -e "${GREEN}✓ Kafka deployment created${NC}"
+echo -e "${GREEN}OK Kafka deployment created${NC}"
 echo ""
 
 echo -e "${YELLOW}Step 2: Waiting for Kafka pod to be ready...${NC}"
@@ -42,7 +42,7 @@ kubectl wait --for=condition=ready pod -l app=kafka -n airbnb-kafka --timeout=30
   kubectl logs -n airbnb-kafka -l app=kafka --tail=50
   exit 1
 }
-echo -e "${GREEN}✓ Kafka is ready${NC}"
+echo -e "${GREEN}OK Kafka is ready${NC}"
 echo ""
 
 echo -e "${YELLOW}Step 3: Creating Kafka topics...${NC}"
@@ -52,7 +52,7 @@ kubectl wait --for=condition=complete job/kafka-topics-bootstrap -n airbnb-kafka
   echo -e "${YELLOW}Warning: Topic creation job may still be running${NC}"
   kubectl logs -n airbnb-kafka job/kafka-topics-bootstrap --tail=20
 }
-echo -e "${GREEN}✓ Kafka topics created${NC}"
+echo -e "${GREEN}OK Kafka topics created${NC}"
 echo ""
 
 echo -e "${YELLOW}Step 4: Verifying Kafka deployment...${NC}"
@@ -60,7 +60,7 @@ kubectl get all -n airbnb-kafka
 echo ""
 
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ Kafka deployment complete!${NC}"
+echo -e "${GREEN}DONE Kafka deployment complete!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "${YELLOW}Kafka Details:${NC}"

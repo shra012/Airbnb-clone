@@ -32,13 +32,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo -e "${GREEN}✓ ECR login successful${NC}"
+echo -e "${GREEN}OK ECR login successful${NC}"
 echo ""
 
 # Setup buildx for multi-platform builds
 echo -e "${YELLOW}Setting up Docker buildx...${NC}"
 docker buildx create --name airbnb-builder --use --bootstrap 2>/dev/null || docker buildx use airbnb-builder
-echo -e "${GREEN}✓ Buildx ready${NC}"
+echo -e "${GREEN}OK Buildx ready${NC}"
 echo ""
 
 # Build and push backend services (all use same Dockerfile)
@@ -59,7 +59,7 @@ for service in "${BACKEND_SERVICES[@]}"; do
     exit 1
   fi
   
-  echo -e "${GREEN}✓ ${service} pushed successfully${NC}"
+  echo -e "${GREEN}OK ${service} pushed successfully${NC}"
   echo ""
 done
 
@@ -77,7 +77,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo -e "${GREEN}✓ Agent service pushed successfully${NC}"
+echo -e "${GREEN}OK Agent service pushed successfully${NC}"
 echo ""
 
 # Build and push frontend
@@ -102,12 +102,12 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo -e "${GREEN}✓ Frontend pushed successfully${NC}"
+echo -e "${GREEN}OK Frontend pushed successfully${NC}"
 echo ""
 
 # Summary
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ All images built and pushed successfully!${NC}"
+echo -e "${GREEN}DONE All images built and pushed successfully!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "${YELLOW}Images in ECR:${NC}"

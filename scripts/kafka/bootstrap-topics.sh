@@ -56,7 +56,7 @@ create_topics_docker() {
       --topic "${TOPIC}"
   done
   
-  echo -e "${GREEN}✓ Docker Compose Kafka topics ready${NC}"
+  echo -e "${GREEN}OK Docker Compose Kafka topics ready${NC}"
 }
 
 # Create topics in EKS
@@ -91,7 +91,7 @@ create_topics_eks() {
     --bootstrap-server airbnb-kafka.airbnb-kafka.svc.cluster.local:9092
   
   echo ""
-  echo -e "${GREEN}✓ EKS Kafka topics ready${NC}"
+  echo -e "${GREEN}OK EKS Kafka topics ready${NC}"
 }
 
 # Main
@@ -128,7 +128,7 @@ esac
 
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ Topics bootstrap complete!${NC}"
+echo -e "${GREEN}DONE Topics bootstrap complete!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 popd >/dev/null

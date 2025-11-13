@@ -27,46 +27,46 @@ echo ""
 
 # Check kubectl
 if ! command -v kubectl &> /dev/null; then
-    echo -e "${RED}✗ kubectl not found${NC}"
+    echo -e "${RED}ERROR kubectl not found${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ kubectl installed${NC}"
+echo -e "${GREEN}OK kubectl installed${NC}"
 
 # Check helm
 if ! command -v helm &> /dev/null; then
-    echo -e "${RED}✗ helm not found${NC}"
+    echo -e "${RED}ERROR helm not found${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ helm installed${NC}"
+echo -e "${GREEN}OK helm installed${NC}"
 
 # Check AWS CLI
 if ! command -v aws &> /dev/null; then
-    echo -e "${RED}✗ aws CLI not found${NC}"
+    echo -e "${RED}ERROR aws CLI not found${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ AWS CLI installed${NC}"
+echo -e "${GREEN}OK AWS CLI installed${NC}"
 
 # Check Docker
 if ! command -v docker &> /dev/null; then
-    echo -e "${RED}✗ docker not found${NC}"
+    echo -e "${RED}ERROR docker not found${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ Docker installed${NC}"
+echo -e "${GREEN}OK Docker installed${NC}"
 
 # Check cluster access
 # if ! kubectl cluster-info &> /dev/null; then
-#     echo -e "${RED}✗ Cannot connect to Kubernetes cluster${NC}"
+#     echo -e "${RED}ERROR Cannot connect to Kubernetes cluster${NC}"
 #     exit 1
 # fi
-# echo -e "${GREEN}✓ Kubernetes cluster accessible${NC}"
+# echo -e "${GREEN}OK Kubernetes cluster accessible${NC}"
 
 # Check .env file
 if [ ! -f "${PROJECT_ROOT}/backend/.env" ]; then
-    echo -e "${RED}✗ backend/.env file not found${NC}"
+    echo -e "${RED}ERROR backend/.env file not found${NC}"
     echo -e "${YELLOW}Please create backend/.env with required secrets${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ backend/.env file found${NC}"
+echo -e "${GREEN}OK backend/.env file found${NC}"
 
 echo ""
 echo -e "${GREEN}All prerequisites met!${NC}"
@@ -92,12 +92,12 @@ echo ""
 ${SCRIPT_DIR}/build-and-push.sh
 
 if [ $? -ne 0 ]; then
-    echo -e "${RED}✗ Failed to build and push images${NC}"
+    echo -e "${RED}ERROR Failed to build and push images${NC}"
     exit 1
 fi
 
 echo ""
-echo -e "${GREEN}✓ All images built and pushed${NC}"
+echo -e "${GREEN}OK All images built and pushed${NC}"
 echo ""
 
 # Step 3: Deploy Kafka
@@ -106,12 +106,12 @@ echo ""
 ${SCRIPT_DIR}/deploy-kafka.sh
 
 if [ $? -ne 0 ]; then
-    echo -e "${RED}✗ Failed to deploy Kafka${NC}"
+    echo -e "${RED}ERROR Failed to deploy Kafka${NC}"
     exit 1
 fi
 
 echo ""
-echo -e "${GREEN}✓ Kafka deployed${NC}"
+echo -e "${GREEN}OK Kafka deployed${NC}"
 echo ""
 
 # Step 4: Deploy to Kubernetes
@@ -120,12 +120,12 @@ echo ""
 ${SCRIPT_DIR}/deploy-helm.sh
 
 if [ $? -ne 0 ]; then
-    echo -e "${RED}✗ Failed to deploy to Kubernetes${NC}"
+    echo -e "${RED}ERROR Failed to deploy to Kubernetes${NC}"
     exit 1
 fi
 
 echo ""
-echo -e "${GREEN}✓ Deployment complete${NC}"
+echo -e "${GREEN}OK Deployment complete${NC}"
 echo ""
 
 # Step 5: Get status

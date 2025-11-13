@@ -61,7 +61,7 @@ if command -v kubectl &>/dev/null && kubectl cluster-info &>/dev/null 2>&1; then
   kubectl delete namespace airbnb-app 2>/dev/null || echo "  Namespace airbnb-app not found"
   kubectl delete namespace airbnb-kafka 2>/dev/null || echo "  Namespace airbnb-kafka not found"
   
-  echo -e "${GREEN}✓ Kubernetes resources cleaned up${NC}"
+  echo -e "${GREEN}OK Kubernetes resources cleaned up${NC}"
 else
   echo -e "${YELLOW}kubectl not connected to cluster, skipping K8s cleanup${NC}"
 fi
@@ -90,7 +90,7 @@ terraform destroy \
   -var-file=network.auto.tfvars \
   -auto-approve
 
-echo -e "${GREEN}✓ Infrastructure destroyed${NC}"
+echo -e "${GREEN}OK Infrastructure destroyed${NC}"
 echo ""
 sleep 2
 
@@ -109,7 +109,7 @@ terraform apply \
   -var-file=network.auto.tfvars \
   -auto-approve
 
-echo -e "${GREEN}✓ Infrastructure created${NC}"
+echo -e "${GREEN}OK Infrastructure created${NC}"
 echo ""
 sleep 2
 
@@ -133,9 +133,9 @@ sleep 30
 
 # Verify connection
 if kubectl cluster-info &>/dev/null; then
-  echo -e "${GREEN}✓ Connected to cluster${NC}"
+  echo -e "${GREEN}OK Connected to cluster${NC}"
 else
-  echo -e "${RED}✗ Failed to connect to cluster${NC}"
+  echo -e "${RED}ERROR Failed to connect to cluster${NC}"
   exit 1
 fi
 
@@ -151,7 +151,7 @@ echo ""
 cd "${PROJECT_ROOT}"
 bash "${SCRIPT_DIR}/deploy-kafka.sh"
 
-echo -e "${GREEN}✓ Kafka deployed${NC}"
+echo -e "${GREEN}OK Kafka deployed${NC}"
 echo ""
 sleep 2
 
@@ -163,7 +163,7 @@ echo ""
 
 bash "${SCRIPT_DIR}/build-and-push.sh"
 
-echo -e "${GREEN}✓ Images built and pushed${NC}"
+echo -e "${GREEN}OK Images built and pushed${NC}"
 echo ""
 sleep 2
 
@@ -175,7 +175,7 @@ echo ""
 
 bash "${SCRIPT_DIR}/deploy-helm.sh"
 
-echo -e "${GREEN}✓ Application deployed${NC}"
+echo -e "${GREEN}OK Application deployed${NC}"
 echo ""
 sleep 2
 
@@ -207,7 +207,7 @@ bash "${SCRIPT_DIR}/get-urls.sh"
 
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}✅ Cluster recreation complete!${NC}"
+echo -e "${GREEN}DONE Cluster recreation complete!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "${YELLOW}Next steps:${NC}"
