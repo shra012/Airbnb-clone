@@ -63,6 +63,7 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile.local
       args:
         VITE_BACKEND_URL: auto
     depends_on:
