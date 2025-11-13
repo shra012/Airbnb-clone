@@ -1,0 +1,48 @@
+---
+# Job to create Kafka topics
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-topics-bootstrap
+  namespace: airbnb-kafka
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: kafka-topics
+        image: confluentinc/cp-kafka:7.6.1
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Waiting for Kafka to be ready..."
+          sleep 30
+          
+          echo "Creating booking.requests topic..."
+          kafka-topics --bootstrap-server airbnb-kafka.airbnb-kafka.svc.cluster.local:9092 \
+            --create --if-not-exists \
+            --topic booking.requests \
+            --partitions 3 \
+            --replication-factor 1
+          
+          echo "Creating booking.status topic..."
+          kafka-topics --bootstrap-server airbnb-kafka.airbnb-kafka.svc.cluster.local:9092 \
+            --create --if-not-exists \
+            --topic booking.status \
+            --partitions 3 \
+            --replication-factor 1
+          
+          echo "Creating property.notifications topic..."
+          kafka-topics --bootstrap-server airbnb-kafka.airbnb-kafka.svc.cluster.local:9092 \
+            --create --if-not-exists \
+            --topic property.notifications \
+            --partitions 3 \
+            --replication-factor 1
+          
+          echo "Listing all topics..."
+          kafka-topics --bootstrap-server airbnb-kafka.airbnb-kafka.svc.cluster.local:9092 --list
+          
+          echo "Kafka topics created successfully!"
+

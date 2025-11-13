@@ -82,6 +82,14 @@ echo ""
 
 # Build and push frontend
 echo -e "${BLUE}Building frontend for linux/amd64...${NC}"
+
+# Verify .env file exists (required for Firebase credentials)
+if [ ! -f "${PROJECT_ROOT}/frontend/.env" ]; then
+  echo -e "${RED}Error: frontend/.env file not found!${NC}"
+  echo -e "${YELLOW}Firebase credentials are required for the frontend build.${NC}"
+  exit 1
+fi
+
 docker buildx build \
   --platform linux/amd64 \
   -t ${ECR_REGISTRY}/airbnb-frontend:${IMAGE_TAG} \

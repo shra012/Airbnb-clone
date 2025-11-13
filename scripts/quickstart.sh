@@ -100,8 +100,22 @@ echo ""
 echo -e "${GREEN}✓ All images built and pushed${NC}"
 echo ""
 
-# Step 3: Deploy to Kubernetes
-echo -e "${BLUE}Step 3: Deploying to Kubernetes...${NC}"
+# Step 3: Deploy Kafka
+echo -e "${BLUE}Step 3: Deploying Kafka...${NC}"
+echo ""
+${SCRIPT_DIR}/deploy-kafka.sh
+
+if [ $? -ne 0 ]; then
+    echo -e "${RED}✗ Failed to deploy Kafka${NC}"
+    exit 1
+fi
+
+echo ""
+echo -e "${GREEN}✓ Kafka deployed${NC}"
+echo ""
+
+# Step 4: Deploy to Kubernetes
+echo -e "${BLUE}Step 4: Deploying application to Kubernetes...${NC}"
 echo ""
 ${SCRIPT_DIR}/deploy-helm.sh
 
@@ -114,8 +128,8 @@ echo ""
 echo -e "${GREEN}✓ Deployment complete${NC}"
 echo ""
 
-# Step 4: Get status
-echo -e "${BLUE}Step 4: Deployment status${NC}"
+# Step 5: Get status
+echo -e "${BLUE}Step 5: Deployment status${NC}"
 echo ""
 
 echo -e "${YELLOW}Pods:${NC}"

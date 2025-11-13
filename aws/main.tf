@@ -230,22 +230,24 @@ resource "aws_eks_node_group" "main" {
 }
 
 # EKS Addons
-# NOTE: EBS CSI driver commented out - requires IRSA (IAM Roles for Service Accounts)
-# If you need persistent EBS volumes later, you can add it manually:
-# aws eks create-addon --cluster-name airbnb-lab2-cluster --addon-name aws-ebs-csi-driver
-#
-# resource "aws_eks_addon" "ebs_csi_driver" {
-#   cluster_name = aws_eks_cluster.main.name
-#   addon_name   = "aws-ebs-csi-driver"
-#   
-#   depends_on = [aws_eks_node_group.main]
-# }
+resource "aws_eks_addon" "ebs_csi_driver" {
+  cluster_name             = aws_eks_cluster.main.name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = "v1.37.0-eksbuild.1"  # Compatible with EKS 1.31
+  resolve_conflicts_on_create = "OVERWRITE"
+  
+  depends_on = [aws_eks_node_group.main]
+  
+  tags = local.tags
+}
 
 resource "aws_eks_addon" "vpc_cni" {
   cluster_name = aws_eks_cluster.main.name
   addon_name   = "vpc-cni"
   
   depends_on = [aws_eks_node_group.main]
+  
+  tags = local.tags
 }
 
 resource "aws_eks_addon" "kube_proxy" {
@@ -253,6 +255,8 @@ resource "aws_eks_addon" "kube_proxy" {
   addon_name   = "kube-proxy"
   
   depends_on = [aws_eks_node_group.main]
+  
+  tags = local.tags
 }
 
 ############################################################

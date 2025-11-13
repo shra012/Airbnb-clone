@@ -5,7 +5,7 @@
 global:
   namespace: airbnb-app
   imageRegistry: 779926948199.dkr.ecr.us-east-1.amazonaws.com
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Always
   
 # Secrets configuration (will be created from environment)
 secrets:
@@ -20,6 +20,7 @@ secrets:
 kafka:
   enabled: true
   brokerUrl: "airbnb-kafka.airbnb-kafka.svc.cluster.local:9092"
+  # Kafka is deployed separately in airbnb-kafka namespace
   topics:
     - name: booking.requests
       partitions: 3

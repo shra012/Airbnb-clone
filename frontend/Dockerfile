@@ -1,9 +1,6 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-ARG VITE_BACKEND_URL=http://localhost:4000
-ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
-
 COPY package*.json ./
 RUN npm ci
 
