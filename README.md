@@ -45,11 +45,11 @@ The script creates `booking.requests`, `booking.status`, and `property.notificat
 
 | Requirement | Status | Implemented Artifacts | Remaining Work |
 |-------------|--------|-----------------------|----------------|
-| **Part 1 – Docker & Kubernetes** | ⚠️ Partial | `docker-compose.yml` now builds backend, frontend, agent-service plus Kafka (KRaft) and Mongo-backed sessions. | Split backend into micro services (traveler/owner/property/booking), author `k8s/` manifests, deploy to AWS EKS, capture screenshots/logs. |
-| **Part 2 – Kafka Integration** | ✅ Done (local) | `scripts/kafka/bootstrap-topics.sh`, backend producers/consumers (`backend/src/messaging/*`), realtime Socket.IO fan-out, frontend toasts/panels. | Mirror topology in Kubernetes/AWS, document Kafka flow screenshots. |
-| **Part 3 – MongoDB** | ✅ Done | Sessions + booking/property notifications stored in Atlas (see `backend/src/config/mongo.js`, `README` instructions). | Optional: migrate business data from Postgres → Mongo if required, document Atlas screenshots. |
-| **Part 4 – Redux & Realtime UI** | ⚠️ Partial | Redux Toolkit store + Socket.IO wiring (`frontend/src/store`, `frontend/src/providers/RealtimeProvider.jsx`), booking bell/toasts (`NotificationBell`, `NotificationsToaster`), property update panel. | Still using React Query for auth/property lists; need Redux slices for auth, search results, booking flow per brief and add Redux DevTools evidence. |
-| **Part 5 – JMeter Testing** | ❌ Not started | — | Create `.jmx` plan, run 100–500 user loads, add graphs + analysis under `docs/`. |
+| **Part 1 – Docker & Kubernetes** | Partial | `docker-compose.yml` now builds backend, frontend, agent-service plus Kafka (KRaft) and Mongo-backed sessions. | Split backend into micro services (traveler/owner/property/booking), author `k8s/` manifests, deploy to AWS EKS, capture screenshots/logs. |
+| **Part 2 – Kafka Integration** | Done (local) | `scripts/kafka/bootstrap-topics.sh`, backend producers/consumers (`backend/src/messaging/*`), realtime Socket.IO fan-out, frontend toasts/panels. | Mirror topology in Kubernetes/AWS, document Kafka flow screenshots. |
+| **Part 3 – MongoDB** | Done | Sessions + booking/property notifications stored in Atlas (see `backend/src/config/mongo.js`, `README` instructions). | Optional: migrate business data from Postgres → Mongo if required, document Atlas screenshots. |
+| **Part 4 – Redux & Realtime UI** | Partial | Redux Toolkit store + Socket.IO wiring (`frontend/src/store`, `frontend/src/providers/RealtimeProvider.jsx`), booking bell/toasts (`NotificationBell`, `NotificationsToaster`), property update panel. | Still using React Query for auth/property lists; need Redux slices for auth, search results, booking flow per brief and add Redux DevTools evidence. |
+| **Part 5 – JMeter Testing** | Not started | — | Create `.jmx` plan, run 100–500 user loads, add graphs + analysis under `docs/`. |
 
 ### Evidence / Reporting Checklist
 - [ ] AWS/EKS screenshots showing pods/services + Kafka topics.

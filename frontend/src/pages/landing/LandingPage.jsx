@@ -31,14 +31,14 @@ const ownerFeatures = [
   {
     title: 'Automated updates',
     description: 'Get notified of bookings, cancellations, and messages in real-time across all your properties.',
-    icon: '⚡',
+    icon: '',
     gradient: 'from-purple-100 to-purple-50',
     imagePath: 'landing/owner-features/automated-updates.jpg',
   },
   {
     title: 'Performance insights',
     description: 'Analyze revenue trends, occupancy rates, and guest satisfaction with powerful analytics.',
-    icon: '📊',
+    icon: '',
     gradient: 'from-blue-100 to-blue-50',
     imagePath: 'landing/owner-features/performance-insights.jpg',
   },

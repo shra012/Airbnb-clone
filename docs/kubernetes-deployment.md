@@ -4,7 +4,7 @@ Complete guide for deploying the Airbnb Clone application to AWS EKS.
 
 ## Prerequisites
 
-✅ All prerequisites are met:
+All prerequisites are met:
 - EKS Cluster: `serious-folk-goose` (running)
 - Worker Nodes: 3 x t2.large (Ready)
 - kubectl configured
@@ -396,12 +396,12 @@ kubectl get all -n airbnb-app -o yaml > backup-k8s.yaml
 
 ## Success Criteria
 
-✅ All pods in `Running` state
-✅ All services have endpoints
-✅ LoadBalancer has external IP
-✅ Application accessible via browser
-✅ Health checks passing
-✅ HPA configured and monitoring
+- All pods in `Running` state
+- All services have endpoints
+- LoadBalancer has external IP
+- Application accessible via browser
+- Health checks passing
+- HPA configured and monitoring
 
 ## Next Steps
 

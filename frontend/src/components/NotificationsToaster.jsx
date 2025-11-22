@@ -42,7 +42,7 @@ export default function NotificationsToaster() {
               className="btn btn-ghost btn-xs"
               onClick={() => dispatch(dismissToast(toast.id))}
             >
-              ✕
+              ×
             </button>
           </div>
         </div>

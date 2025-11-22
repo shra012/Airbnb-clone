@@ -119,7 +119,10 @@ export default function PropertyImageUploader({ images, setImages, maxImages = 1
           />
           <div className="space-y-3">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-airbnb-primary/10 mx-auto">
-              <span className="text-2xl text-airbnb-primary">📷</span>
+              <svg className="w-8 h-8 text-airbnb-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </div>
             <div>
               <p className="text-lg font-medium text-airbnb-charcoal">
@@ -138,7 +141,7 @@ export default function PropertyImageUploader({ images, setImages, maxImages = 1
         <div key={fileId} className="card-surface p-4">
           <div className="flex items-center gap-3">
             <div className="h-16 w-16 rounded-xl bg-base-200 flex items-center justify-center">
-              <span className="text-2xl">⏳</span>
+              <span className="text-sm text-airbnb-charcoal/60">Uploading</span>
             </div>
             <div className="flex-1">
               <p className="font-medium text-airbnb-charcoal">{file.name}</p>
@@ -168,7 +171,7 @@ export default function PropertyImageUploader({ images, setImages, maxImages = 1
                       className="btn btn-sm bg-white/90 hover:bg-white border-none text-airbnb-charcoal"
                       title="Set as cover photo"
                     >
-                      ⭐
+                      Set as cover
                     </button>
                   )}
                   {image.isCover && (
@@ -182,7 +185,7 @@ export default function PropertyImageUploader({ images, setImages, maxImages = 1
                     className="btn btn-sm bg-white/90 hover:bg-white border-none text-error"
                     title="Remove photo"
                   >
-                    ✕
+                    ×
                   </button>
                 </div>
               </div>

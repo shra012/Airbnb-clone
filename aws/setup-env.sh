@@ -29,7 +29,7 @@ if [[ -f "$ENV_FILE" ]]; then
     echo "✓ Loaded TF_VAR_session_secret"
   fi
 else
-  echo "⚠️  Backend .env file not found at $ENV_FILE"
+  echo "WARNING: Backend .env file not found at $ENV_FILE"
   echo "Please set these environment variables manually:"
   echo "  export TF_VAR_mongo_session_uri='your-mongodb-uri'"
   echo "  export TF_VAR_supabase_postgres_url='your-supabase-url'"

@@ -357,7 +357,6 @@ function ConciergeResponseView({ response }) {
       {weatherSummary && (
         <div className="rounded-3xl border border-amber-200 bg-amber-50/50 p-4">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">☀️</span>
             <div className="flex-1">
               <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-900/60 mb-2">
                 Weather Outlook
@@ -384,7 +383,6 @@ function ConciergeResponseView({ response }) {
                 className="rounded-3xl border border-base-200 bg-base-100 p-4 shadow-sm hover:shadow-md hover:border-airbnb-primary/30 transition-all group"
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-xl">🔗</span>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-semibold text-airbnb-primary group-hover:underline line-clamp-1">
                       {result.title || new URL(result.url).hostname}
@@ -420,7 +418,6 @@ function ConciergeResponseView({ response }) {
                     <div className="mt-2 flex flex-wrap gap-2 text-sm text-airbnb-charcoal/70">
                       {property.city && (
                         <span className="flex items-center gap-1">
-                          <span>📍</span>
                           <span>{property.city}{property.state ? `, ${property.state}` : ''}</span>
                         </span>
                       )}
@@ -431,9 +428,9 @@ function ConciergeResponseView({ response }) {
                       )}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-3 text-sm text-airbnb-charcoal/70">
-                      {property.bedrooms && <span>🛏️ {property.bedrooms} bed{property.bedrooms > 1 ? 's' : ''}</span>}
-                      {property.bathrooms && <span>🚿 {property.bathrooms} bath{property.bathrooms > 1 ? 's' : ''}</span>}
-                      {property.maxGuests && <span>👥 Max {property.maxGuests} guest{property.maxGuests > 1 ? 's' : ''}</span>}
+                      {property.bedrooms && <span>{property.bedrooms} bed{property.bedrooms > 1 ? 's' : ''}</span>}
+                      {property.bathrooms && <span>{property.bathrooms} bath{property.bathrooms > 1 ? 's' : ''}</span>}
+                      {property.maxGuests && <span>Max {property.maxGuests} guest{property.maxGuests > 1 ? 's' : ''}</span>}
                     </div>
                     {property.description && (
                       <p className="mt-3 text-sm leading-relaxed text-airbnb-charcoal/60 line-clamp-2">
@@ -467,7 +464,6 @@ function ConciergeResponseView({ response }) {
                 <div className="mt-2 flex flex-wrap gap-2 text-sm text-airbnb-charcoal/70">
                   {poi.location && (
                     <span className="flex items-center gap-1">
-                      <span>📍</span>
                       <span className="line-clamp-1">{poi.location}</span>
                     </span>
                   )}
