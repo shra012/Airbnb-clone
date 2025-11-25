@@ -7,14 +7,21 @@ global:
   imageRegistry: 779926948199.dkr.ecr.us-east-1.amazonaws.com
   imagePullPolicy: Always
   
-# Secrets configuration (will be created from environment)
+# Secrets configuration (override these via a gitignored values-secret.yaml)
 secrets:
   mongo:
-    sessionUri: ""  # Set via --set or environment
+    sessionUri: ""
   supabase:
-    databaseUrl: ""  # Set via --set or environment
+    databaseUrl: ""
   session:
-    secret: ""  # Set via --set or environment
+    secret: ""
+  agent:
+    openaiApiKey: ""
+    openaiModelName: "gpt-4o-mini"
+    anthropicApiKey: ""
+    anthropicModelName: "claude-sonnet-4-5"
+    tavilyApiKey: ""
+    weatherApiKey: ""
 
 # Kafka configuration
 kafka:

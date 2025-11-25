@@ -15,3 +15,6 @@ tfplan
 
 # Automatically generated variable files
 *.auto.tfvars
+
+# Helm secret overrides
+k8s/helm/airbnb/values-secret.yaml

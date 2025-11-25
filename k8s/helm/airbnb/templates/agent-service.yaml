@@ -25,11 +25,17 @@ spec:
         env:
         - name: AGENT_SERVICE_PORT
           value: {{ .Values.agentService.env.AGENT_SERVICE_PORT | quote }}
+        {{- if .Values.global.corsOrigins }}
+        - name: CORS_ORIGINS
+          value: {{ join "," .Values.global.corsOrigins | quote }}
+        {{- end }}
         envFrom:
         - secretRef:
             name: mongo-session
         - secretRef:
             name: supabase-postgres
+        - secretRef:
+            name: agent-llm
         resources:
           {{- toYaml .Values.agentService.resources | nindent 10 }}
         livenessProbe:
